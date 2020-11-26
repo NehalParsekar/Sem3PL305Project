@@ -3,10 +3,9 @@ const router = express.Router();
 const db = require('../config/dbConfig');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
+const passportInit = require('../config/passport');
 
-db.authenticate()
-.then(() => console.log('Database connected'))
-.catch((err) => console.log(err.message));
+db.authenticate().then().catch((err) => console.log(err.message));
 
 const Users = require('../models/Users');
 
@@ -23,7 +22,7 @@ router.get('/login', (req, res) =>{
 });
 
 router.post('/login', (req, res, next) => {
-    require('../config/passport')(passport, 'user');
+    passportInit(passport, 'user');
     passport.authenticate('local', {
         successRedirect: '/dashboard',
         failureRedirect: '/login',

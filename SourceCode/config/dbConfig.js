@@ -2,7 +2,8 @@ const Sequelize =  require('sequelize');
 const sequelize = new Sequelize('railway', 'root', 'nehalnehal', {
     host: 'localhost',
     dialect: 'mysql',
-    operatorsAliases: false,
+    operatorsAliases: 0,
+    logging: false,
     pol: {
         max: 5,
         min: 0,

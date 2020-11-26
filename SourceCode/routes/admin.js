@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const passportInit = require('../config/passport');
 
 const options = {
     layout : 'admin',
@@ -16,7 +17,7 @@ router.get('/login', (req, res) =>{
 });
 
 router.post('/login', (req, res, next) => {
-    require('../config/passport')(passport, 'admin');
+    passportInit(passport, 'admin');
     passport.authenticate('local', {
         successRedirect: '/admin',
         failureRedirect: '/login',
