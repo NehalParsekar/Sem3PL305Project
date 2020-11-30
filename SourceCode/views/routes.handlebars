@@ -1,14 +1,12 @@
 <div class="main-content">
     <div class="section__content section__content--p30">
         <div class="container-fluid">
-            <div class="row mb-4">
+            <div class="row">
                 <div class="col-md-12">
                     <div class="overview-wrap">
-                        <h2 class="title-1">Routes</h2>
+                        <h2 class="title-1 p-2">Routes</h2>
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
@@ -16,7 +14,7 @@
                                 <h3 class="text-center title-2">Add a Route</h3>
                             </div>
                             <hr>
-                            <form action="">
+                            <form action="/admin/dashboard/routes" method="POST">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
@@ -29,16 +27,16 @@
                                             <div class="col-6">
                                                 <div class="form-group">
                                                     <div class="col-md-12">
-                                                        <label for="sourceId" class=" form-control-label">Source Station
+                                                        <label for="sStationId" class=" form-control-label">Source
+                                                            Station
                                                             Name</label>
                                                     </div>
                                                     <div class="col-md-12">
-                                                        <select name="sourceId" id="sourceId" class="form-control"
+                                                        <select name="sStationId" id="sStationId" class="form-control"
                                                             required>
-                                                            <option value="0">Please select</option>
-                                                            <option value="1">Option #1</option>
-                                                            <option value="2">Option #2</option>
-                                                            <option value="3">Option #3</option>
+                                                            {{#each data.stations}}
+                                                            <option value="{{id}}">{{stationName}}</option>
+                                                            {{/each}}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -46,17 +44,16 @@
                                             <div class="col-6">
                                                 <div class="form-group">
                                                     <div class="col-md-12">
-                                                        <label for="destinationId"
-                                                            class=" form-control-label">Destination Station
+                                                        <label for="dStationId" class=" form-control-label">Destination
+                                                            Station
                                                             Name</label>
                                                     </div>
                                                     <div class="col-md-12">
-                                                        <select name="destinationId" id="destinationId"
-                                                            class="form-control" required>
-                                                            <option value="0">Please select</option>
-                                                            <option value="1">Option #1</option>
-                                                            <option value="2">Option #2</option>
-                                                            <option value="3">Option #3</option>
+                                                        <select name="dStationId" id="dStationId" class="form-control"
+                                                            required>
+                                                            {{#each data.stations}}
+                                                            <option value="{{id}}">{{stationName}}</option>
+                                                            {{/each}}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -74,10 +71,9 @@
                                                     <div class="col-md-12">
                                                         <select name="scheduleId" id="scheduleId" class="form-control"
                                                             multiple size="3" required>
-                                                            <option value="0">Please select</option>
-                                                            <option value="1">Option #1</option>
-                                                            <option value="2">Option #2</option>
-                                                            <option value="3">Option #3</option>
+                                                            {{#each data.schedules}}
+                                                            <option value="{{id}}">{{scheduleName}}</option>
+                                                            {{/each}}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -90,10 +86,9 @@
                                                     <div class="col-md-12">
                                                         <select name="trainId" id="trainId" class="form-control"
                                                             multiple size="3" required>
-                                                            <option value="0">Please select</option>
-                                                            <option value="1">Option #1</option>
-                                                            <option value="2">Option #2</option>
-                                                            <option value="3">Option #3</option>
+                                                            {{#each data.trains}}
+                                                            <option value="{{id}}">{{trainName}}</option>
+                                                            {{/each}}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -102,7 +97,7 @@
                                     </div>
                                     <div class="col-md-12" style="margin-top: 1rem;">
                                         <div class="form-group">
-                                            <input id="fare" name="fare" type="number" class="form-control"
+                                            <input id="routeFare" name="routeFare" type="number" class="form-control"
                                                 placeholder="Fare Price" required>
                                         </div>
                                     </div>
@@ -115,15 +110,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row mb-4">
                 <div class="col-md-12">
                     <div class="overview-wrap">
-                        <h2 class="title-1">Data Table</h2>
+                        <h2 class="title-1 p-2">Data Table</h2>
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-12">
                     <!-- DATA TABLE-->
                     <div class="table-responsive m-b-40">
@@ -150,13 +141,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- END DATA TABLE-->
-                </div>
-            </div>
-            <div class="row center">
-                <div class="col-md-12">
-                    <div class="copyright">
-                        <p>Copyright © 2020 Nehal Parsekar. All rights reserved.</a>.</p>
+                    <div class="col-md-12">
+                        <div class="copyright">
+                            <p>Copyright © 2020 Nehal Parsekar. All rights reserved.</a>.</p>
+                        </div>
                     </div>
                 </div>
             </div>

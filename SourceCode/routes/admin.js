@@ -13,14 +13,22 @@ router.get('/', (req, res) => {
 });
 
 router.get('/login', (req, res) =>{
-    res.render('adminLogin');
+    options.layout = 'in';
+    options.data = {
+        messages : {
+            success_msg: req.flash('success_msg'),
+            error_msg: req.flash('error_msg'),
+            error: req.flash('error')
+        }
+    }
+    res.render('adminLogin', options);
 });
 
 router.post('/login', (req, res, next) => {
     passportInit(passport, 'admin');
     passport.authenticate('local', {
         successRedirect: '/admin',
-        failureRedirect: '/login',
+        failureRedirect: '/admin/login',
         failureFlash: true
     })(req, res, next);
 });

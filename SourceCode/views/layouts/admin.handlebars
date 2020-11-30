@@ -42,14 +42,9 @@
             <div class="header-mobile__bar">
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
-                        <a class="logo" href="index.html">
+                        <a class="logo" href="/admin/dashboard">
                             <img src="/images/icon/logo.png" alt="CoolAdmin" />
                         </a>
-                        <button class="hamburger hamburger--slider" type="button">
-                            <span class="hamburger-box">
-                                <span class="hamburger-inner"></span>
-                            </span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -84,6 +79,10 @@
                             <a href="/admin/dashboard/users">
                                 <i class="fas fa-calendar-alt"></i>Users</a>
                         </li>
+                        <li>
+                            <a href="/admin/dashboard/reports">
+                                <i class="fas fa-tachometer-alt"></i>Reports</a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -93,7 +92,7 @@
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar d-none d-lg-block">
             <div class="logo">
-                <a href="#">
+                <a href="/admin/dashboard">
                     <img src="/images/icon/logo.png" alt="Cool Admin" />
                 </a>
             </div>
@@ -128,6 +127,10 @@
                             <a href="/admin/dashboard/users">
                                 <i class="fas fa-calendar-alt"></i>Users</a>
                         </li>
+                        <li>
+                            <a href="/admin/dashboard/reports">
+                                <i class="fas fa-tachometer-alt"></i>Reports</a>
+                        </li>
                     </ul>
                 </nav>
             </div>
@@ -141,14 +144,12 @@
             <header class="header-desktop">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
-                        <div class="header-wrap">
-                            <form class="form-header">
-                                <input class="au-input au-input--xl" type="text" name="search"
-                                    placeholder="Search for datas &amp; reports..." />
-                                <button class="au-btn--submit" type="submit">
-                                    <i class="zmdi zmdi-search"></i>
-                                </button>
-                            </form>
+                        <button class="hamburger hamburger--slider displayToggle" type="button">
+                            <span class="hamburger-box" style="margin-top: 0.7rem;">
+                                <span class="hamburger-inner"></span>
+                            </span>
+                        </button>
+                        <div class="header-wrap float-right">
                             <div class="header-button">
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu">

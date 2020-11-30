@@ -14,11 +14,16 @@ router.get('/', (req, res) => {
 });
 
 router.get('/login', (req, res) =>{
-    res.render('userLogin', {
-        success_msg: req.flash('success_msg'),
-        error_msg: req.flash('error_msg'),
-        error: req.flash('error')
-    });
+    var options = {
+        data: {
+            messages : {
+                success_msg: req.flash('success_msg'),
+                error_msg: req.flash('error_msg'),
+                error: req.flash('error')
+            }
+        }
+    }
+    res.render('userLogin', options);
 });
 
 router.post('/login', (req, res, next) => {
@@ -54,7 +59,7 @@ router.post('/register', (req, res) => {
         }
 
         if(messages.length > 0){
-            res.render('register', {data: messages});
+            res.render('register', {data : {messageArray: messages}});
         } else {
             bcrypt.genSalt(10, (err, salt) => {
                 bcrypt.hash(password, salt, (err, hash) => {
@@ -78,14 +83,14 @@ router.post('/register', (req, res) => {
                                 type: 'danger',
                                 text: err.message
                             });
-                            res.render('register', {data: messages});
+                            res.render('register', {data : {messageArray: messages}});
                         });
                     } else {
                         messages.push({
                             type: 'danger',
                             text: err.message
                         });
-                        res.render('register', {data : messages});
+                        res.render('register', {data : {messageArray: messages}});
                     }
                 });
             });
@@ -95,7 +100,7 @@ router.post('/register', (req, res) => {
             type: 'danger',
             text: err.message
         });
-        res.render('register', {data: messages});
+        res.render('register', {data : {messageArray: messages}});
     });
 })
 
