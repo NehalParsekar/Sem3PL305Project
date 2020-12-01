@@ -8,6 +8,52 @@
                     </div>
                 </div>
                 <div class="col-md-12">
+                    {{#if data.updateStation.status}}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-title">
+                                <h3 class="text-center title-2">Update the Station</h3>
+                            </div>
+                            <hr>
+                            {{> messages}}
+                            <form action="/admin/dashboard/stations/update" method="POST">
+                                <div class="form-group">
+                                    <input id="stateId" name="stationId" type="text" class="form-control"
+                                        placeholder="id" value="{{data.updateStation.id}}" hidden required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label for="cc-exp" class=" form-control-label">Station Name</label>
+                                        <div class="form-group">
+                                            <input id="cc-exp" name="stationName" type="text"
+                                                class="form-control cc-exp" value="{{data.updateStation.stationName}}"
+                                                placeholder="Name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <div class="col col-md-12">
+                                                <label for="stateId" class=" form-control-label">State
+                                                    Name</label>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <select id="select" class="form-control" required>
+                                                    <option value="{{data.updateStation.stateName}}" selected>
+                                                        {{data.updateStation.stateName}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button id="payment-button" type="submit"
+                                        class="btn btn-lg btn-info btn-block">UPDATE</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {{else}}
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title">
@@ -47,6 +93,7 @@
                             </form>
                         </div>
                     </div>
+                    {{/if}}
                 </div>
                 <div class="col-md-12">
                     <div class="overview-wrap">
@@ -60,18 +107,28 @@
                             <thead>
                                 <tr>
                                     <th>S No.</th>
-                                    <th>Timestamp</th>
                                     <th>Station Name</th>
                                     <th>State Name</th>
+                                    <th>Update</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{#each data.stations}}
                                 <tr>
                                     <td>{{index}}</td>
-                                    <td>{{createdAt}}</td>
                                     <td>{{stationName}}</td>
                                     <td>{{stateName}}</td>
+                                    {{#if canUpdate}}
+                                    <td>
+                                        <a href="/admin/dashboard/stations/update/{{id}}/{{stateName}}">
+                                            <button type="button" class="btn btn-primary btn-sm">Update</button>
+                                        </a>
+                                    </td>
+                                    {{else}}
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm" disabled>Update</button>
+                                    </td>
+                                    {{/if}}
                                 </tr>
                                 {{/each}}
                             </tbody>
@@ -79,11 +136,7 @@
                     </div>
                     <!-- END DATA TABLE-->
                 </div>
-                <div class="col-md-12">
-                    <div class="copyright">
-                        <p>Copyright © 2020 Nehal Parsekar. All rights reserved.</a>.</p>
-                    </div>
-                </div>
+                {{>footer}}
             </div>
         </div>
     </div>

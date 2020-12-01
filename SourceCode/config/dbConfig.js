@@ -12,4 +12,6 @@ const sequelize = new Sequelize('railway', 'root', 'nehalnehal', {
     }
 });
 
+sequelize.authenticate().then().catch((err) => console.log(err.message));
+
 module.exports = sequelize;

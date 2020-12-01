@@ -8,12 +8,128 @@
                     </div>
                 </div>
                 <div class="col-md-12">
+                    {{#if data.updateRoute.status}}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-title">
+                                <h3 class="text-center title-2">Update the Route</h3>
+                            </div>
+                            <hr>
+                            {{> messages}}
+                            <form action="/admin/dashboard/routes/update" method="POST">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <input id="routeId" name="routeId" type="text" class="form-control"
+                                                placeholder="Route Id" value="{{data.updateRoute.id}}" hidden required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <input id="routeName" name="routeName" type="text" class="form-control"
+                                                placeholder="Route Name" value="{{data.updateRoute.routeName}}"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <label for="sStationId" class=" form-control-label">Source
+                                                            Station
+                                                            Name</label>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <select name="sStationId" id="sStationId" class="form-control"
+                                                            required>
+                                                            <option value="{{data.updateRoute.sStation}}" selected>
+                                                                {{data.updateRoute.sStation}}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <label for="dStationId" class=" form-control-label">Destination
+                                                            Station
+                                                            Name</label>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <select name="dStationId" id="dStationId" class="form-control"
+                                                            required>
+                                                            <option value="{{data.updateRoute.dStation}}" selected>
+                                                                {{data.updateRoute.dStation}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <label for="scheduleId" class=" form-control-label">Schedules
+                                                            <span style="color: red;">(Select All Again)</span></label>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <select name="scheduleId" id="scheduleId" class="form-control"
+                                                            multiple size="3" required>
+                                                            {{#each data.schedules}}
+                                                            <option value="{{id}}">{{scheduleName}}</option>
+                                                            {{/each}}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <label for="trainId" class=" form-control-label">Trains <span
+                                                                style="color: red;">
+                                                                (Select
+                                                                All Again)
+                                                            </span></label>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <select name="trainId" id="trainId" class="form-control"
+                                                            multiple size="3" required>
+                                                            {{#each data.trains}}
+                                                            <option value="{{id}}">{{trainName}}</option>
+                                                            {{/each}}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" style="margin-top: 1rem;">
+                                        <div class="form-group">
+                                            <input id="routeFare" name="routeFare" type="number" class="form-control"
+                                                placeholder="Fare Price" value="{{data.updateRoute.routeFare}}"
+                                                required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button id="payment-button" type="submit"
+                                        class="btn btn-lg btn-info btn-block">UPDATE</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {{else}}
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title">
                                 <h3 class="text-center title-2">Add a Route</h3>
                             </div>
                             <hr>
+                            {{> messages}}
                             <form action="/admin/dashboard/routes" method="POST">
                                 <div class="row">
                                     <div class="col-md-12">
@@ -109,6 +225,7 @@
                             </form>
                         </div>
                     </div>
+                    {{/if}}
                 </div>
                 <div class="col-md-12">
                     <div class="overview-wrap">
@@ -122,30 +239,38 @@
                             <thead>
                                 <tr>
                                     <th>S No.</th>
-                                    <th>Timestamp</th>
                                     <th>Route Name</th>
                                     <th>Source Station</th>
                                     <th>Destination Station</th>
                                     <th>Fare Price</th>
+                                    <th>Update</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {{#each data.routes}}
                                 <tr>
-                                    <td>1</td>
-                                    <td>2018-09-29 05:57</td>
-                                    <td>Name</td>
-                                    <td>Name</td>
-                                    <td>Name</td>
-                                    <td>Price</td>
+                                    <td>{{index}}</td>
+                                    <td>{{routeName}}</td>
+                                    <td>{{sStation}}</td>
+                                    <td>{{dStation}}</td>
+                                    <td>{{routeFare}}</td>
+                                    {{#if canUpdate}}
+                                    <td>
+                                        <a href="/admin/dashboard/routes/update/{{id}}/{{sStation}}/{{dStation}}">
+                                            <button type="button" class="btn btn-primary btn-sm">Update</button>
+                                        </a>
+                                    </td>
+                                    {{else}}
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm" disabled>Update</button>
+                                    </td>
+                                    {{/if}}
                                 </tr>
+                                {{/each}}
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-md-12">
-                        <div class="copyright">
-                            <p>Copyright © 2020 Nehal Parsekar. All rights reserved.</a>.</p>
-                        </div>
-                    </div>
+                    {{>footer}}
                 </div>
             </div>
         </div>

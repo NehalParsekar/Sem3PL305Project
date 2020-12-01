@@ -63,7 +63,7 @@ CREATE TABLE Routes(
 	updatedAt TIMESTAMP NOT NULL
 );
 
-CREATE TABLE RouteSchedule(
+CREATE TABLE RouteSchedules(
 	id VARCHAR(256) PRIMARY KEY,
 	routeId VARCHAR(256) NOT NULL REFERENCES Routes(id),
 	scheduleId VARCHAR(256) NOT NULL REFERENCES Schedules(id),
@@ -71,7 +71,7 @@ CREATE TABLE RouteSchedule(
 	updatedAt TIMESTAMP NOT NULL
 );
 
-CREATE TABLE RouteTrain(
+CREATE TABLE RouteTrains(
 	id VARCHAR(256) PRIMARY KEY,
 	routeId VARCHAR(256) NOT NULL REFERENCES Routes(id),
 	trainId VARCHAR(256) NOT NULL REFERENCES Trains(id),
@@ -79,13 +79,22 @@ CREATE TABLE RouteTrain(
 	updatedAt TIMESTAMP NOT NULL
 );
 
+CREATE TABLE Members(
+	id VARCHAR(256) PRIMARY KEY,
+	adminId VARCHAR(256) NOT NULL REFERENCES Users(id),
+	userId VARCHAR(256) NOT NULL REFERENCES Users(id),
+	createdAt TIMESTAMP NOT NULL,
+	updatedAt TIMESTAMP NOT NULL
+);
+
 SHOW TABLES;
 
-DROP TABLE Schedule;
+DROP TABLE RouteTrain;
 
-DELETE FROM States WHERE 1=1;
+DELETE FROM Routes WHERE 1=1;
 
-SELECT * FROM Schedules;
+SELECT * FROM RouteSchedules rs ;
+
 
 DESC Users;
 

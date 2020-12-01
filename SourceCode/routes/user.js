@@ -3,10 +3,8 @@ const router = express.Router();
 const db = require('../config/dbConfig');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
+const commonFunctions = require('../functions/common');
 const passportInit = require('../config/passport');
-
-db.authenticate().then().catch((err) => console.log(err.message));
-
 const Users = require('../models/Users');
 
 router.get('/', (req, res) => {
@@ -15,12 +13,8 @@ router.get('/', (req, res) => {
 
 router.get('/login', (req, res) =>{
     var options = {
-        data: {
-            messages : {
-                success_msg: req.flash('success_msg'),
-                error_msg: req.flash('error_msg'),
-                error: req.flash('error')
-            }
+        data : {
+            messages : commonFunctions.flashMessages(req)
         }
     }
     res.render('userLogin', options);
@@ -43,7 +37,7 @@ router.post('/register', (req, res) => {
     const { name, address, year, gender, contact, email, password, cPassword } = req.body;
     let messages = []
 
-    Users.count({where : { userEmail : email}}).then((count) => {
+    Users.count({where : { userEmail : email, userType: 'user'}}).then((count) => {
         if(count > 0){
             messages.push({
                 type: 'danger',
@@ -106,7 +100,6 @@ router.post('/register', (req, res) => {
 
 router.get('/logout', (req, res) =>{
     req.logOut();
-    req.flash('success_msg', 'You are logged out.');
     res.redirect('/login');
 });
 

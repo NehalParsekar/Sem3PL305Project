@@ -1,11 +1,38 @@
-module.exports.findAllInArray = (model, nameColumn, extras) => {
+module.exports.flashMessages = (req) => {
+    return {
+        success_msg: req.flash('success_msg'),
+        error_msg: req.flash('error_msg'),
+        error: req.flash('error')
+    }
+}
+
+module.exports.findAllInArray = (model, nameColumn, extras, adminId) => {
     return new Promise((resolve, reject) => {
         var dataArray = [];
+        var adminArray = [];
         model.findAll().then((data) => {
             data.forEach(element => {
                 var entry = element.dataValues;
-                entry.index = index;
-                dataArray.push(element.dataValues);
+                if(entry.adminId == adminId){
+                    entry.canUpdate = true;
+                    adminArray.push(entry);
+                } else {
+                    entry.canUpdate = false;
+                    dataArray.push(entry);
+                }
+            });
+
+            adminArray.sort((a,b) => {
+                var nameA = a[nameColumn].toUpperCase();
+                var nameB = b[nameColumn].toUpperCase();
+
+                if(nameA < nameB){
+                    return -1;
+                } else if(nameA > nameB){
+                    return 1;
+                } else {
+                    return 0;
+                }
             });
 
             dataArray.sort((a,b) => {
@@ -21,8 +48,14 @@ module.exports.findAllInArray = (model, nameColumn, extras) => {
                 }
             });
 
+            if(dataArray.length > 0){
+                dataArray.forEach(el => {
+                    adminArray.push(el);
+                });
+            }
+
             var index = 1;
-            dataArray.forEach((element) => {
+            adminArray.forEach((element) => {
                 element.index = index;
 
                 if(extras != null){
@@ -30,9 +63,10 @@ module.exports.findAllInArray = (model, nameColumn, extras) => {
                         var model = ex.model;
                         var idColumn = ex.idColumn;
                         var nameColumn = ex.nameColumn;
+                        var dataColumn = ex.dataColumn;
     
                         model.findByPk(element[idColumn]).then((data) => {
-                            element[nameColumn] = data.get()[nameColumn];
+                            element[dataColumn] = data.get()[nameColumn];
                         });
                     });
                 }
@@ -40,7 +74,7 @@ module.exports.findAllInArray = (model, nameColumn, extras) => {
                 index++;
             });
 
-            resolve(dataArray);
+            resolve(adminArray);
         }).catch((e) => {
             reject(e);
         });

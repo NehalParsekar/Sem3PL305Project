@@ -14,7 +14,6 @@
                             <thead>
                                 <tr>
                                     <th>S No.</th>
-                                    <th>Timestamp</th>
                                     <th>Name</th>
                                     <th>Address</th>
                                     <th>Age</th>
@@ -24,26 +23,22 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {{#each data.users}}
                                 <tr>
-                                    <td>1</td>
-                                    <td>2018-09-29 05:57</td>
-                                    <td>Name</td>
-                                    <td>Address</td>
-                                    <td>Age</td>
-                                    <td>Gender</td>
-                                    <td>Contact</td>
-                                    <td>Email</td>
+                                    <td>{{index}}</td>
+                                    <td>{{userName}}</td>
+                                    <td>{{userAddress}}</td>
+                                    <td>{{userYear}}</td>
+                                    <td>{{userGender}}</td>
+                                    <td>{{userContact}}</td>
+                                    <td>{{userEmail}}</td>
                                 </tr>
+                                {{/each}}
                             </tbody>
                         </table>
                     </div>
-                    <!-- END DATA TABLE-->
                 </div>
-                <div class="col-md-12">
-                    <div class="copyright">
-                        <p>Copyright © 2020 Nehal Parsekar. All rights reserved.</a>.</p>
-                    </div>
-                </div>
+                {{>footer}}
             </div>
         </div>
     </div>
