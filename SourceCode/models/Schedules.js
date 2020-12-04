@@ -18,6 +18,10 @@ const Schedules = db.define('Schedule', {
     },
     departure: {
         type: Sequelize.TIME
+    },
+    status: {
+        type: Sequelize.BOOLEAN.key,
+        defaultValue: true
     }
 });
 

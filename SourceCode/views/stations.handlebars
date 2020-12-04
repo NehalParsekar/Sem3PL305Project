@@ -79,7 +79,9 @@
                                             <div class="col-md-12">
                                                 <select name="stateId" id="select" class="form-control" required>
                                                     {{#each data.states}}
+                                                    {{#if status}}
                                                     <option value="{{id}}">{{stateName}}</option>
+                                                    {{/if}}
                                                     {{/each}}
                                                 </select>
                                             </div>
@@ -109,6 +111,7 @@
                                     <th>S No.</th>
                                     <th>Station Name</th>
                                     <th>State Name</th>
+                                    <th>Status</th>
                                     <th>Update</th>
                                 </tr>
                             </thead>
@@ -118,17 +121,30 @@
                                     <td>{{index}}</td>
                                     <td>{{stationName}}</td>
                                     <td>{{stateName}}</td>
-                                    {{#if canUpdate}}
                                     <td>
+                                        {{#if canUpdate}}
+                                        {{#if status}}
+                                        <a href="/admin/dashboard/stations/updateStatus/{{id}}">
+                                            <button type="button" class="btn btn-success btn-sm">Active</button>
+                                        </a>
+                                        {{else}}
+                                        <a href="/admin/dashboard/stations/updateStatus/{{id}}">
+                                            <button type="button" class="btn btn-secondary btn-sm">Inactive</button>
+                                        </a>
+                                        {{/if}}
+                                        {{else}}
+                                        <button type="button" class="btn btn-success btn-sm" disabled>Active</button>
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        {{#if canUpdate}}
                                         <a href="/admin/dashboard/stations/update/{{id}}/{{stateName}}">
                                             <button type="button" class="btn btn-primary btn-sm">Update</button>
                                         </a>
-                                    </td>
-                                    {{else}}
-                                    <td>
+                                        {{else}}
                                         <button type="button" class="btn btn-primary btn-sm" disabled>Update</button>
+                                        {{/if}}
                                     </td>
-                                    {{/if}}
                                 </tr>
                                 {{/each}}
                             </tbody>

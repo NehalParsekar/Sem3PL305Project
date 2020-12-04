@@ -18,7 +18,9 @@ module.exports.findAllInArray = (model, nameColumn, extras, adminId) => {
                     adminArray.push(entry);
                 } else {
                     entry.canUpdate = false;
-                    dataArray.push(entry);
+                    if(entry.status){
+                        dataArray.push(entry);
+                    }
                 }
             });
 
@@ -99,5 +101,20 @@ module.exports.findOneAndCreate = (model, columnName, name, object, req, res, re
     }).catch((e) => {
         req.flash('error_msg', e.message);
         res.redirect(redirect);
+    });
+}
+
+module.exports.changeStatus = (model, id) => {
+    return new Promise((resolve, reject) => {
+        model.findByPk(id).then(entry => {
+            entry.status = !entry.get().status;
+            entry.save().then(() => {
+                resolve();
+            }).catch(e => {
+                reject(e);
+            });
+        }).catch(e => {
+            reject(e);
+        });
     });
 }

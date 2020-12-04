@@ -7,6 +7,55 @@
                         <h2 class="title-1 p-2">Transactions</h2>
                     </div>
                 </div>
+                <div class="col-md-12">
+                    <!-- DATA TABLE-->
+                    <div class="table-responsive m-b-40">
+                        <table class="table table-borderless table-data3">
+                            <thead>
+                                <tr>
+                                    <th>S No.</th>
+                                    <th>User Name</th>
+                                    <th>Train</th>
+                                    <th>Arrival</th>
+                                    <th>Departure</th>
+                                    <th>Date</th>
+                                    <th>Coach</th>
+                                    <th>Source State</th>
+                                    <th>Source Station</th>
+                                    <th>Destination State</th>
+                                    <th>Destination Station</th>
+                                    <th>Fare</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each data.transactions}}
+                                <tr>
+                                    <td>{{index}}</td>
+                                    <td>{{userName}}</td>
+                                    <td>{{trainName}}</td>
+                                    <td>{{arrival}}</td>
+                                    <td>{{departure}}</td>
+                                    <td>{{ticketDate}}</td>
+                                    <td>{{ticketCoach}}</td>
+                                    <td>{{sStateName}}</td>
+                                    <td>{{sStationName}}</td>
+                                    <td>{{dStateName}}</td>
+                                    <td>{{dStationName}}</td>
+                                    <td>{{ticketFare}}</td>
+                                    <td>
+                                        {{#if status}}
+                                        <p style="color: green;">Booked</p>
+                                        {{else}}
+                                        <p style="color: red;">Cancelled</p>
+                                        {{/if}}
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 {{>footer}}
             </div>
         </div>

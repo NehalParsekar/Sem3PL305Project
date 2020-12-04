@@ -18,6 +18,10 @@ const Trains = db.define('Train', {
     },
     trainName: {
         type: Sequelize.STRING
+    },
+    status: {
+        type: Sequelize.BOOLEAN.key,
+        defaultValue: true
     }
 });
 

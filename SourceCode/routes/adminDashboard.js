@@ -111,16 +111,38 @@ router.post('/states/update', (req, res) => {
     const {stateId, stateName} = req.body;
 
     States.findByPk(stateId).then(state => {
-        state.stateName = stateName;
-        state.save().then(() => {
-            req.flash('success_msg', 'State Updated');
-            res.redirect('/admin/dashboard/states');
+        States.findOne({
+            where: {
+                stateName
+            }
+        }).then(stateDup => {
+            if((stateDup == null) || (stateId == stateDup.id)){
+                state.stateName = stateName;
+                state.save().then(() => {
+                    req.flash('success_msg', 'State Updated');
+                    res.redirect('/admin/dashboard/states');
+                }).catch(e => {
+                    console.log(e.message);
+                    res.redirect('/admin/dashboard/states');
+                });
+            } else {
+                req.flash('error_msg', 'State name already exists');
+                res.redirect('/admin/dashboard/states');
+            }
         }).catch(e => {
             console.log(e.message);
             res.redirect('/admin/dashboard/states');
         });
     }).catch(e => {
         console.log(e.message);
+        res.redirect('/admin/dashboard/states');
+    });
+});
+
+router.get('/states/updateStatus/:id', (req, res) => {
+    commonFunctions.changeStatus(States, req.params.id).then(() => {
+        res.redirect('/admin/dashboard/states');
+    }).catch(e => {
         res.redirect('/admin/dashboard/states');
     });
 });
@@ -239,16 +261,39 @@ router.post('/stations/update', (req, res) => {
     const {stationId, stationName} = req.body;
 
     Stations.findByPk(stationId).then(station => {
-        station.stationName = stationName;
-        station.save().then(() => {
-            req.flash('success_msg', 'Station Updated');
-            res.redirect('/admin/dashboard/stations');
+        Stations.findOne({
+            where : {
+                stationName
+            }
+        }).then(stationDup => {
+            if((stationDup == null) || (stationId == stationDup.id)){
+                station.stationName = stationName;
+                station.save().then(() => {
+                    req.flash('success_msg', 'Station Updated');
+                    res.redirect('/admin/dashboard/stations');
+                }).catch(e => {
+                    console.log(e.message);
+                    res.redirect('/admin/dashboard/stations');
+                });
+            } else {
+                req.flash('error_msg', 'Station name exists');
+                res.redirect('/admin/dashboard/stations');
+            }
         }).catch(e => {
+            console.log(e);
             console.log(e.message);
             res.redirect('/admin/dashboard/stations');
         });
     }).catch(e => {
         console.log(e.message);
+        res.redirect('/admin/dashboard/stations');
+    });
+});
+
+router.get('/stations/updateStatus/:id', (req, res) => {
+    commonFunctions.changeStatus(Stations, req.params.id).then(() => {
+        res.redirect('/admin/dashboard/stations');
+    }).catch(e => {
         res.redirect('/admin/dashboard/stations');
     });
 });
@@ -344,19 +389,41 @@ router.post('/trains/update', (req, res) => {
     const {trainId, trainName, generalSeats, acSeats} = req.body;
 
     Trains.findByPk(trainId).then(train => {
-        train.trainName = trainName;
-        train.generalSeats = generalSeats;
-        train.acSeats = acSeats;
+        Trains.findOne({
+            where: {
+                trainName
+            }
+        }).then(trainDup => {
+            if((trainDup == null) || (trainId == trainDup.id)){
+                train.trainName = trainName;
+                train.generalSeats = generalSeats;
+                train.acSeats = acSeats;
 
-        train.save().then(() => {
-            req.flash('success_msg', 'Train updated');
-            res.redirect('/admin/dashboard/trains');
+                train.save().then(() => {
+                    req.flash('success_msg', 'Train updated');
+                    res.redirect('/admin/dashboard/trains');
+                }).catch(e => {
+                    console.log(e.message);
+                    res.redirect('/admin/dashboard/trains');
+                });
+            } else {
+                req.flash('error_msg', 'Train name exists');
+                res.redirect('/admin/dashboard/trains');
+            }
         }).catch(e => {
             console.log(e.message);
             res.redirect('/admin/dashboard/trains');
         });
     }).catch(e => {
         console.log(e.message);
+        res.redirect('/admin/dashboard/trains');
+    });
+});
+
+router.get('/trains/updateStatus/:id', (req, res) => {
+    commonFunctions.changeStatus(Trains, req.params.id).then(() => {
+        res.redirect('/admin/dashboard/trains');
+    }).catch(e => {
         res.redirect('/admin/dashboard/trains');
     });
 });
@@ -464,18 +531,40 @@ router.post('/schedules/update', (req, res) => {
     const departure = dHour + ":" + dMinute;
 
     Schedules.findByPk(scheduleId).then(schedule => {
-        schedule.scheduleName = scheduleName;
-        schedule.arrival = arrival;
-        schedule.departure = departure;
-        schedule.save().then(() => {
-            req.flash('success_msg', 'Schedule updated');
-            res.redirect('/admin/dashboard/schedules');
+        Schedules.findOne({
+            where: {
+                scheduleName
+            }
+        }).then(scheduleDup => {
+            if((scheduleDup == null) || (scheduleId == scheduleDup.id)){
+                schedule.scheduleName = scheduleName;
+                schedule.arrival = arrival;
+                schedule.departure = departure;
+                schedule.save().then(() => {
+                    req.flash('success_msg', 'Schedule updated');
+                    res.redirect('/admin/dashboard/schedules');
+                }).catch(e => {
+                    console.log(e.message);
+                    res.redirect('/admin/dashboard/schedules');
+                });
+            } else {
+                req.flash('error_msg', 'Schedule name exists');
+                res.redirect('/admin/dashboard/schedules');
+            }
         }).catch(e => {
             console.log(e.message);
             res.redirect('/admin/dashboard/schedules');
         });
     }).catch(e => {
         console.log(e.message);
+        res.redirect('/admin/dashboard/schedules');
+    });
+});
+
+router.get('/schedules/updateStatus/:id', (req, res) => {
+    commonFunctions.changeStatus(Schedules, req.params.id).then(() => {
+        res.redirect('/admin/dashboard/schedules');
+    }).catch(e => {
         res.redirect('/admin/dashboard/schedules');
     });
 });
@@ -558,68 +647,73 @@ router.get('/routes', (req, res) =>{
 router.post('/routes', (req, res) => {
     var {routeName, sStationId, dStationId, scheduleId, trainId, routeFare} = req.body;
     
-    Routes.findOne({
-        where: {
-            routeName
-        }
-    }).then(data => {
-        if(data == null){
-            Routes.create({
-                routeName,
-                adminId: req.user.id,
-                routeFare,
-                sStationId,
-                dStationId
-            }).then(route => {
-                var routeId = route.id;
-                var promiseArray = [];
-                var p;
-                if(Array.isArray(trainId)){
-                    trainId.forEach(element => {
+    if(sStationId == dStationId){
+        req.flash('error_msg', 'Source and destination station cannot be same');
+        res.redirect('/admin/dashboard/routes');
+    } else {
+        Routes.findOne({
+            where: {
+                routeName
+            }
+        }).then(data => {
+            if(data == null){
+                Routes.create({
+                    routeName,
+                    adminId: req.user.id,
+                    routeFare,
+                    sStationId,
+                    dStationId
+                }).then(route => {
+                    var routeId = route.id;
+                    var promiseArray = [];
+                    var p;
+                    if(Array.isArray(trainId)){
+                        trainId.forEach(element => {
+                            p = RouteTrain.create({
+                                routeId,
+                                trainId: element
+                            });
+                            promiseArray.push(p);
+                        });
+                    } else {
                         p = RouteTrain.create({
                             routeId,
-                            trainId: element
+                            trainId
                         });
                         promiseArray.push(p);
-                    });
-                } else {
-                    p = RouteTrain.create({
-                        routeId,
-                        trainId
-                    });
-                    promiseArray.push(p);
-                }
-                if(Array.isArray(scheduleId)){
-                    scheduleId.forEach(element => {
+                    }
+                    if(Array.isArray(scheduleId)){
+                        scheduleId.forEach(element => {
+                            p = RouteSchedule.create({
+                                routeId,
+                                scheduleId: element
+                            });
+                            promiseArray.push(p);
+                        });
+                    } else {
                         p = RouteSchedule.create({
                             routeId,
-                            scheduleId: element
+                            scheduleId
                         });
                         promiseArray.push(p);
+                    }
+                    Promise.all(promiseArray).then(() => {
+                        req.flash('success_msg', 'Route data inserted');
+                        res.redirect('/admin/dashboard/routes');
+                    }).catch(e => {
+                        console.log(e.message);
+                        res.redirect('/admin/dashboard/routes');
                     });
-                } else {
-                    p = RouteSchedule.create({
-                        routeId,
-                        scheduleId
-                    });
-                    promiseArray.push(p);
-                }
-                Promise.all(promiseArray).then(() => {
-                    req.flash('success_msg', 'Route data inserted');
-                    res.redirect('/admin/dashboard/routes');
-                }).catch(e => {
-                    console.log(e.message);
-                    res.redirect('/admin/dashboard/routes');
-                });
-            }); 
-        } else {
-            req.flash('error_message', 'Route name already exists');
+                }); 
+            } else {
+                req.flash('error_msg', 'Route name already exists');
+                res.redirect('/admin/dashboard/routes');
+            }
+        }).catch(e => {
+            console.log(e.message);
             res.redirect('/admin/dashboard/routes');
-        }
-    }).catch(e => {
-        console.log(e.message);
-        res.redirect('/admin/dashboard/routes');
-    });
+        });
+    }
 });
 
 router.get('/routes/update/:id/:sStation/:dStation', (req, res) =>  {
@@ -718,60 +812,71 @@ router.get('/routes/update/:id/:sStation/:dStation', (req, res) =>  {
         res.render('routes', options);
     });
 });
+
 router.post('/routes/update', (req, res) => {
     const {routeId, routeName, scheduleId, trainId, routeFare} = req.body;
     
-    RouteSchedule.destroy({
+    Routes.findOne({
         where: {
-            routeId
+            routeName
         }
-    }).then(() => {
-        RouteTrain.destroy({
-            where: {
-                routeId
-            }
-        }).then(() => {
-            var promiseArray = [];
-                var p;
-
-                if(Array.isArray(trainId)){
-                    trainId.forEach(element => {
+    }).then(route => {
+        if(route == null){
+            RouteSchedule.destroy({
+                where: {
+                    routeId
+                }
+            }).then(() => {
+                RouteTrain.destroy({
+                    where: {
+                        routeId
+                    }
+                }).then(() => {
+                    var promiseArray = [];
+                    var p;
+        
+                    if(Array.isArray(trainId)){
+                        trainId.forEach(element => {
+                            p = RouteTrain.create({
+                                routeId,
+                                trainId: element
+                            });
+                            promiseArray.push(p);
+                        });
+                    } else {
                         p = RouteTrain.create({
                             routeId,
-                            trainId: element
+                            trainId
                         });
                         promiseArray.push(p);
-                    });
-                } else {
-                    p = RouteTrain.create({
-                        routeId,
-                        trainId
-                    });
-                    promiseArray.push(p);
-                }
-                if(Array.isArray(scheduleId)){
-                    scheduleId.forEach(element => {
+                    }
+                    if(Array.isArray(scheduleId)){
+                        scheduleId.forEach(element => {
+                            p = RouteSchedule.create({
+                                routeId,
+                                scheduleId: element
+                            });
+                            promiseArray.push(p);
+                        });
+                    } else {
                         p = RouteSchedule.create({
                             routeId,
-                            scheduleId: element
+                            scheduleId
                         });
                         promiseArray.push(p);
-                    });
-                } else {
-                    p = RouteSchedule.create({
-                        routeId,
-                        scheduleId
-                    });
-                    promiseArray.push(p);
-                }
-                Promise.all(promiseArray).then(() => {
-                    Routes.findByPk(routeId).then(route => {
-                        route.routeName = routeName;
-                        route.routeFare = routeFare;
-
-                        route.save().then(() => {
-                            req.flash('success_msg', 'Route Updated');
-                            res.redirect('/admin/dashboard/routes');
+                    }
+                    Promise.all(promiseArray).then(() => {
+                        Routes.findByPk(routeId).then(route => {
+                            route.routeName = routeName;
+                            route.routeFare = routeFare;
+        
+                            route.save().then(() => {
+                                req.flash('success_msg', 'Route Updated');
+                                res.redirect('/admin/dashboard/routes');
+                            }).catch(e => {
+                                console.log(e.message);
+                                res.redirect('/admin/dashboard/routes');
+                            });
                         }).catch(e => {
                             console.log(e.message);
                             res.redirect('/admin/dashboard/routes');
@@ -784,12 +889,24 @@ router.post('/routes/update', (req, res) => {
                     console.log(e.message);
                     res.redirect('/admin/dashboard/routes');
                 });
-        }).catch(e => {
-            console.log(e.message);
+            }).catch(e => {
+                console.log(e.message);
+                res.redirect('/admin/dashboard/routes');
+            });
+        } else {
+            req.flash('error_msg', 'Route name exists');
             res.redirect('/admin/dashboard/routes');
-        });
+        }
     }).catch(e => {
         console.log(e.message);
+        res.redirect('/admin/dashboard/routes');
+    });
+});
+
+router.get('/routes/updateStatus/:id', (req, res) => {
+    commonFunctions.changeStatus(Routes, req.params.id).then(() => {
+        res.redirect('/admin/dashboard/routes');
+    }).catch(e => {
         res.redirect('/admin/dashboard/routes');
     });
 });

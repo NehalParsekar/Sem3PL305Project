@@ -72,37 +72,29 @@
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <div class="col-md-12">
-                                                        <label for="scheduleId" class=" form-control-label">Schedules
-                                                            <span style="color: red;">(Select All Again)</span></label>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <select name="scheduleId" id="scheduleId" class="form-control"
-                                                            multiple size="3" required>
-                                                            {{#each data.schedules}}
-                                                            <option value="{{id}}">{{scheduleName}}</option>
-                                                            {{/each}}
-                                                        </select>
-                                                    </div>
+                                                    <label for="scheduleId" class=" form-control-label">Schedules
+                                                        <span style="color: red;">(Select All Again)</span></label>
+                                                    <select name="scheduleId" id="scheduleId" class="form-control"
+                                                        multiple size="3" required>
+                                                        {{#each data.schedules}}
+                                                        <option value="{{id}}">{{scheduleName}}</option>
+                                                        {{/each}}
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <div class="col-md-12">
-                                                        <label for="trainId" class=" form-control-label">Trains <span
-                                                                style="color: red;">
-                                                                (Select
-                                                                All Again)
-                                                            </span></label>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <select name="trainId" id="trainId" class="form-control"
-                                                            multiple size="3" required>
-                                                            {{#each data.trains}}
-                                                            <option value="{{id}}">{{trainName}}</option>
-                                                            {{/each}}
-                                                        </select>
-                                                    </div>
+                                                    <label for="trainId" class=" form-control-label">Trains <span
+                                                            style="color: red;">
+                                                            (Select
+                                                            All Again)
+                                                        </span></label>
+                                                    <select name="trainId" id="trainId" class="form-control" multiple
+                                                        size="3" required>
+                                                        {{#each data.trains}}
+                                                        <option value="{{id}}">{{trainName}}</option>
+                                                        {{/each}}
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -142,36 +134,32 @@
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <div class="col-md-12">
-                                                        <label for="sStationId" class=" form-control-label">Source
-                                                            Station
-                                                            Name</label>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <select name="sStationId" id="sStationId" class="form-control"
-                                                            required>
-                                                            {{#each data.stations}}
-                                                            <option value="{{id}}">{{stationName}}</option>
-                                                            {{/each}}
-                                                        </select>
-                                                    </div>
+                                                    <label for="sStationId" class=" form-control-label">Source
+                                                        Station
+                                                        Name</label>
+                                                    <select name="sStationId" id="sStationId" class="form-control"
+                                                        required>
+                                                        {{#each data.stations}}
+                                                        {{#if status}}
+                                                        <option value="{{id}}">{{stationName}}</option>
+                                                        {{/if}}
+                                                        {{/each}}
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <div class="col-md-12">
-                                                        <label for="dStationId" class=" form-control-label">Destination
-                                                            Station
-                                                            Name</label>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <select name="dStationId" id="dStationId" class="form-control"
-                                                            required>
-                                                            {{#each data.stations}}
-                                                            <option value="{{id}}">{{stationName}}</option>
-                                                            {{/each}}
-                                                        </select>
-                                                    </div>
+                                                    <label for="dStationId" class=" form-control-label">Destination
+                                                        Station
+                                                        Name</label>
+                                                    <select name="dStationId" id="dStationId" class="form-control"
+                                                        required>
+                                                        {{#each data.stations}}
+                                                        {{#if status}}
+                                                        <option value="{{id}}">{{stationName}}</option>
+                                                        {{/if}}
+                                                        {{/each}}
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -180,33 +168,29 @@
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <div class="col-md-12">
-                                                        <label for="scheduleId"
-                                                            class=" form-control-label">Schedules</label>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <select name="scheduleId" id="scheduleId" class="form-control"
-                                                            multiple size="3" required>
-                                                            {{#each data.schedules}}
-                                                            <option value="{{id}}">{{scheduleName}}</option>
-                                                            {{/each}}
-                                                        </select>
-                                                    </div>
+                                                    <label for="scheduleId"
+                                                        class=" form-control-label">Schedules</label>
+                                                    <select name="scheduleId" id="scheduleId" class="form-control"
+                                                        multiple size="3" required>
+                                                        {{#each data.schedules}}
+                                                        {{#if status}}
+                                                        <option value="{{id}}">{{scheduleName}}</option>
+                                                        {{/if}}
+                                                        {{/each}}
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <div class="col-md-12">
-                                                        <label for="trainId" class=" form-control-label">Trains</label>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <select name="trainId" id="trainId" class="form-control"
-                                                            multiple size="3" required>
-                                                            {{#each data.trains}}
-                                                            <option value="{{id}}">{{trainName}}</option>
-                                                            {{/each}}
-                                                        </select>
-                                                    </div>
+                                                    <label for="trainId" class=" form-control-label">Trains</label>
+                                                    <select name="trainId" id="trainId" class="form-control" multiple
+                                                        size="3" required>
+                                                        {{#each data.trains}}
+                                                        {{#if status}}
+                                                        <option value="{{id}}">{{trainName}}</option>
+                                                        {{/if}}
+                                                        {{/each}}
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -243,6 +227,7 @@
                                     <th>Source Station</th>
                                     <th>Destination Station</th>
                                     <th>Fare Price</th>
+                                    <th>Status</th>
                                     <th>Update</th>
                                 </tr>
                             </thead>
@@ -254,17 +239,30 @@
                                     <td>{{sStation}}</td>
                                     <td>{{dStation}}</td>
                                     <td>{{routeFare}}</td>
-                                    {{#if canUpdate}}
                                     <td>
+                                        {{#if canUpdate}}
+                                        {{#if status}}
+                                        <a href="/admin/dashboard/routes/updateStatus/{{id}}">
+                                            <button type="button" class="btn btn-success btn-sm">Active</button>
+                                        </a>
+                                        {{else}}
+                                        <a href="/admin/dashboard/routes/updateStatus/{{id}}">
+                                            <button type="button" class="btn btn-secondary btn-sm">Inactive</button>
+                                        </a>
+                                        {{/if}}
+                                        {{else}}
+                                        <button type="button" class="btn btn-success btn-sm" disabled>Active</button>
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        {{#if canUpdate}}
                                         <a href="/admin/dashboard/routes/update/{{id}}/{{sStation}}/{{dStation}}">
                                             <button type="button" class="btn btn-primary btn-sm">Update</button>
                                         </a>
-                                    </td>
-                                    {{else}}
-                                    <td>
+                                        {{else}}
                                         <button type="button" class="btn btn-primary btn-sm" disabled>Update</button>
+                                        {{/if}}
                                     </td>
-                                    {{/if}}
                                 </tr>
                                 {{/each}}
                             </tbody>

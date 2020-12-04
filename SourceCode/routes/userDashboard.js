@@ -2,6 +2,12 @@ const express = require('express');
 const Users = require('../models/Users');
 const router = express.Router();
 const commonFunctions = require('../functions/common');
+const States = require('../models/States');
+const Stations = require('../models/Stations');
+const Routes = require('../models/Routes');
+const RouteTrains = require('../models/RouteTrain');
+const RouteSchedules = require('../models/RouteSchedule');
+const Tickets = require('../models/Tickets');
 
 const options = {
     layout : 'user',
@@ -30,11 +36,219 @@ router.get('/profile', (req, res) => {
 });
 
 router.get('/tickets', (req, res) =>{
-    res.render('tickets', options);
+    var messageArray = [];
+    options.data.userData = req.user;
+    options.data.messages = commonFunctions.flashMessages(req);
+    Users.getMembers(req.user.id).then(members => {
+        members.unshift(req.user);
+        members[0].userName = 'Myself';
+        options.data.members = members;
+        
+        States.getAllStates().then(statesArray => {
+            options.data.states = statesArray;
+            Tickets.getTickets(req.user.id, false).then(ticketArray => {
+                options.data.tickets = ticketArray;
+                res.render('tickets', options);
+            }).catch(e => {
+                if(e.custom){
+                    messageArray.push({
+                        type: 'danger',
+                        text: e.message
+                    });
+                    options.data.messageArray = messageArray;
+                } else {
+                    console.log(e.message);
+                }
+                res.render('tickets', options);
+            });
+        }).catch(e => {
+            if(e.custom){
+                messageArray.push({
+                    type: 'danger',
+                    text: e.message
+                })
+            } else {
+                console.log(e.message);
+            }
+            res.render('tickets', options);
+        });
+    }).catch(e => {
+        console.log(e.message);
+        res.render('tickets', options);
+    });
+});
+
+router.get('/sourceStation/:id', (req, res) => {
+    var data;
+    Stations.getStateStations(req.params.id).then(stationsArray => {
+        data = {
+            error: false,
+            stationsArray
+        }
+        res.send(data);
+    }).catch(e => {
+        data = {
+            error: true,
+            message: null
+        }
+        if(e.custom){
+            data.message = e.message;
+        } else {
+            console.log(e.message);
+            data.message = 'Error getting Stations';
+        }
+        res.send(data);
+    });
+});
+
+router.get('/getRoutes/:sStationId/:dStationId', (req, res) => {
+    const {sStationId, dStationId} = req.params;
+    var p, promiseArray = [];
+    var sendData = {
+        error: false
+    }
+    var scheduleArray = [], routeArray = [];
+    
+    Routes.getRoutesBetweenStations(sStationId, dStationId).then(data => {
+        routeArray = data;
+        data.forEach(route => {
+            p = RouteSchedules.getSchedules(route.id).then(data => {
+                scheduleArray = data;
+            });
+            promiseArray.push(p);
+        });
+        
+        Promise.all(promiseArray).then(() => {
+            sendData.error = false;
+            sendData.routesArray = routeArray;
+            sendData.schedulesArray = scheduleArray;
+            res.send(sendData);
+        }).catch(e => {
+            sendData.error = true
+            if(e.custom){
+                sendData.message = e.message;
+            } else {
+                console.log(e.message);
+                sendData.message = 'Error at getting Routes';
+            }
+            res.send(sendData);
+        });
+    }).catch(e => {
+        sendData.error = true
+        if(e.custom){
+            sendData.message = e.message;
+        } else {
+            console.log(e.message);
+            sendData.message = 'Error at getting Routes';
+        }
+        res.send(sendData);
+    });
+});
+
+router.get('/getTrains/:count/:isAcInt/:routeId/:scheduleId/:date', (req, res) => {
+    const { count, routeId, isAcInt, scheduleId, date} = req.params;
+    var isAc = true ? parseInt(isAcInt) : false;
+
+    var sendData = {
+        error: true,
+        message: "Error at getting trains"
+    }
+
+    RouteTrains.getTrains(routeId, scheduleId, date, count, isAc).then(trainArray => {
+        sendData.error = false;
+        sendData.data = trainArray;
+        res.send(sendData);
+    }).catch(e => {
+        if(e.custom){
+            sendData.message = e.message;
+        } else {
+            console.log(e);
+        }
+        res.send(sendData);
+    });
+});
+
+router.post('/tickets/book', (req, res) => {
+    const {sStateId, sStationId, dStateId, dStationId, routeId, scheduleId, members, ticketCoach, ticketDate, trainId, ticketFare} = req.body;
+    var p, promiseArray = [];
+
+    if(Array.isArray(members)){
+        members.forEach(el => {
+            p = Tickets.create({
+                userId : el,
+                adminId: req.user.id,
+                trainId,
+                routeId,
+                scheduleId,
+                sStateId,
+                dStateId,
+                sStationId,
+                dStationId,
+                ticketDate,
+                ticketCoach,
+                ticketFare
+            });
+            promiseArray.push(p);
+        })
+        Promise.all(promiseArray).then(() => {
+            req.flash('success_msg', 'Tickets Booked');
+            res.redirect('/dashboard/tickets');
+        }).catch(e => {
+            console.log(e);
+            res.redirect('/dashboard/tickets');
+        });
+    } else {
+        Tickets.create({
+            userId : members,
+            adminId: req.user.id,
+            trainId,
+            routeId,
+            scheduleId,
+            sStateId,
+            dStateId,
+            sStationId,
+            dStationId,
+            ticketDate,
+            ticketCoach,
+            ticketFare
+        }).then(() => {
+            req.flash('success_msg', 'Tickets Booked');
+            res.redirect('/dashboard/tickets');
+        }).catch(e => {
+            console.log(e.message);
+            res.redirect('/dashboard/tickets');
+        });
+    }
+})
+
+router.get('/tickets/cancel/:id', (req, res) => {
+    Tickets.cancelTicket(req.params.id).then(() => {
+        req.flash('success_msg', 'Ticket cancelled');
+        res.redirect('/dashboard/tickets');
+    }).catch(e => {
+        req.flash('error_msg', 'Error at cancelling ticket.');
+        res.redirect('/dashboard/tickets');
+    });
 });
 
 router.get('/transactions', (req, res) =>{
-    res.render('transactions', options);
+    var messageArray = [];
+    options.data.userData = req.user;
+    Tickets.getTickets(req.user.id, true).then(ticketsArray => {
+        options.data.transactions = ticketsArray;
+        res.render('transactions', options);
+    }).catch(e => {
+        if(e.custom){
+            messageArray.push({
+                type: 'danger',
+                text: 'No transactions yet'
+            });
+            options.data.messageArray = messageArray;
+        } else {
+            console.log(e.message);
+        }
+        res.render('transactions', options);
+    });
 });
 
 router.get('/members', (req, res) =>{

@@ -66,6 +66,7 @@
                                 <tr>
                                     <th>S No.</th>
                                     <th>State Name</th>
+                                    <th>Status</th>
                                     <th>Update</th>
                                 </tr>
                             </thead>
@@ -74,17 +75,30 @@
                                 <tr>
                                     <td>{{index}}</td>
                                     <td>{{stateName}}</td>
-                                    {{#if canUpdate}}
                                     <td>
+                                        {{#if canUpdate}}
+                                        {{#if status}}
+                                        <a href="/admin/dashboard/states/updateStatus/{{id}}">
+                                            <button type="button" class="btn btn-success btn-sm">Active</button>
+                                        </a>
+                                        {{else}}
+                                        <a href="/admin/dashboard/states/updateStatus/{{id}}">
+                                            <button type="button" class="btn btn-secondary btn-sm">Inactive</button>
+                                        </a>
+                                        {{/if}}
+                                        {{else}}
+                                        <button type="button" class="btn btn-success btn-sm" disabled>Active</button>
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        {{#if canUpdate}}
                                         <a href="/admin/dashboard/states/update/{{id}}">
                                             <button type="button" class="btn btn-primary btn-sm">Update</button>
                                         </a>
-                                    </td>
-                                    {{else}}
-                                    <td>
+                                        {{else}}
                                         <button type="button" class="btn btn-primary btn-sm" disabled>Update</button>
+                                        {{/if}}
                                     </td>
-                                    {{/if}}
                                 </tr>
                                 {{/each}}
                             </tbody>

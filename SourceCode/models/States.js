@@ -12,7 +12,48 @@ const States = db.define('State', {
     },
     stateName: {
         type: Sequelize.STRING
+    },
+    status: {
+        type: Sequelize.BOOLEAN.key,
+        defaultValue: true
     }
 });
 
 module.exports = States;
+
+module.exports.getAllStates = () => {
+    return new Promise((resolve, reject) => {
+        States.findAll().then(data => {
+            if(data.length == 0){
+                return reject({
+                    custom: true,
+                    message: 'No States available'
+                });
+            } else {
+                var state, statesArray = [];
+                data.forEach(el => {
+                    state = el.dataValues;
+                    if(state.status){
+                        statesArray.push(state);
+                    }
+                });
+                statesArray.sort((a, b) => {
+                    var nameA = a.stateName.toUpperCase();
+                    var nameB = b.stateName.toUpperCase();
+    
+                    if(nameA < nameB){
+                        return -1;
+                    } else if(nameA > nameB){
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+                return resolve(statesArray);
+            }
+        }).catch(e => {
+            e.custom = false;
+            return reject(e);
+        });
+    });
+}
