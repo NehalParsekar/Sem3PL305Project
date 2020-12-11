@@ -1,28 +1,28 @@
-const Sequelize = require('sequelize');
-const db = require('../config/dbConfig');
+const Sequelize = require("sequelize");
+const db = require("../config/dbConfig");
 
-const Trains = db.define('Train', {
+const Trains = db.define("Train", {
     id: {
-        type : Sequelize.UUID,
+        type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
     },
     adminId: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
     },
     acSeats: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
     },
     generalSeats: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
     },
     trainName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
     },
     status: {
         type: Sequelize.BOOLEAN.key,
-        defaultValue: true
-    }
+        defaultValue: true,
+    },
 });
 
 module.exports = Trains;

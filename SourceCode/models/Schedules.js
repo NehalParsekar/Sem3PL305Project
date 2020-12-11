@@ -1,28 +1,28 @@
-const Sequelize = require('sequelize');
-const db = require('../config/dbConfig');
+const Sequelize = require("sequelize");
+const db = require("../config/dbConfig");
 
-const Schedules = db.define('Schedule', {
+const Schedules = db.define("Schedule", {
     id: {
-        type : Sequelize.UUID,
+        type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
     },
     scheduleName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
     },
     adminId: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
     },
     arrival: {
-        type: Sequelize.TIME
+        type: Sequelize.TIME,
     },
     departure: {
-        type: Sequelize.TIME
+        type: Sequelize.TIME,
     },
     status: {
         type: Sequelize.BOOLEAN.key,
-        defaultValue: true
-    }
+        defaultValue: true,
+    },
 });
 
 module.exports = Schedules;

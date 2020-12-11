@@ -1,18 +1,18 @@
-const Sequelize = require('sequelize');
-const db = require('../config/dbConfig');
+const Sequelize = require("sequelize");
+const db = require("../config/dbConfig");
 
-const Members = db.define('Member', {
+const Members = db.define("Member", {
     id: {
-        type : Sequelize.UUID,
+        type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
     },
     adminId: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
     },
     userId: {
-        type: Sequelize.STRING
-    }
+        type: Sequelize.STRING,
+    },
 });
 
 module.exports = Members;
