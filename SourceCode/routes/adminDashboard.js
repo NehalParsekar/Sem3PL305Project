@@ -13,6 +13,9 @@ const Users = require("../models/Users");
 const Bookings = require("../models/Bookings");
 const Tickets = require("../models/Tickets");
 const { Op } = require("sequelize");
+const path = require("path");
+const fs = require("fs");
+const userPdfTemplate = require("../pdfTemplates/userpdf");
 
 const options = {
     layout: "admin",
@@ -1136,7 +1139,15 @@ router.get("/users", (req, res) => {
             }
             options.data.userData = users;
             options.data.users = users;
-            res.render("users", options);
+            commonFunctions
+                .convertToPdf(userPdfTemplate, users, req.user.id, false)
+                .then((data) => {
+                    res.render("users", options);
+                })
+                .catch((e) => {
+                    console.log(e.message);
+                    res.render("users", options);
+                });
         })
         .catch((e) => {
             console.log(e.message);
@@ -1178,16 +1189,46 @@ router.post("/users/search", (req, res) => {
                     .then((data) => {
                         if (data == null) {
                             options.data.messageArray = messageArray;
+                            options.data.users = [];
+                            commonFunctions
+                                .convertToPdf(
+                                    userPdfTemplate,
+                                    options.data.users,
+                                    req.user.id,
+                                    false
+                                )
+                                .then((data) => {
+                                    res.render("users", options);
+                                })
+                                .catch((e) => {
+                                    console.log(e.message);
+                                    res.render("users", options);
+                                });
                         } else {
                             data.dataValues.userYear =
                                 new Date().getFullYear() -
                                 data.dataValues.userYear;
                             users.push(data.dataValues);
                             options.data.users = users;
+                            commonFunctions
+                                .convertToPdf(
+                                    userPdfTemplate,
+                                    users,
+                                    req.user.id,
+                                    false
+                                )
+                                .then((data) => {
+                                    res.render("users", options);
+                                })
+                                .catch((e) => {
+                                    console.log(e.message);
+                                    res.render("users", options);
+                                });
                         }
                     })
                     .catch((e) => {
                         console.log(e);
+                        res.render("users", options);
                     });
             } else {
                 messageArray = [];
@@ -1196,8 +1237,8 @@ router.post("/users/search", (req, res) => {
                     type: "danger",
                 });
                 options.data.messageArray = messageArray;
+                res.render("users", options);
             }
-            res.render("users", options);
         })
         .catch((e) => {
             console.log(e.message);
@@ -1249,15 +1290,45 @@ router.post("/users/filter", (req, res) => {
                     if (users.length != 0) {
                         var userArray = [];
                         users.forEach((el, i) => {
-                            el.dataValues.index = i;
+                            var element = el.dataValues;
+                            element.index = i + 1;
+                            element.userYear =
+                                new Date().getFullYear() - element.userYear;
                             userArray.push(el.dataValues);
                         });
                         options.data.users = userArray;
+                        commonFunctions
+                            .convertToPdf(
+                                userPdfTemplate,
+                                users,
+                                req.user.id,
+                                false
+                            )
+                            .then((data) => {
+                                res.render("users", options);
+                            })
+                            .catch((e) => {
+                                console.log(e.message);
+                                res.render("users", options);
+                            });
                     } else {
                         options.data.users = [];
-                        options.data.messageArray = messageArray;
+                        commonFunctions
+                            .convertToPdf(
+                                userPdfTemplate,
+                                options.data.users,
+                                req.user.id,
+                                false
+                            )
+                            .then((data) => {
+                                options.data.messageArray = messageArray;
+                            })
+                            .catch((e) => {
+                                console.log(e.message);
+                                options.data.messageArray = messageArray;
+                            });
+                        res.render("users", options);
                     }
-                    res.render("users", options);
                 })
                 .catch((e) => {
                     console.log(e.message);
@@ -1268,6 +1339,23 @@ router.post("/users/filter", (req, res) => {
             console.log(e.message);
             res.render("users", options);
         });
+});
+
+router.get("/users/pdf", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "../static/pdfs/" + req.user.id + ".pdf"),
+        (err) => {
+            var filePath = path.join(
+                __dirname,
+                "../static/pdfs/" + req.user.id + ".pdf"
+            );
+            try {
+                fs.unlinkSync(filePath);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    );
 });
 
 router.get("/admins", (req, res) => {
@@ -1468,6 +1556,14 @@ router.get("/reports", (req, res) => {
 router.post("/reports", (req, res) => {
     console.log(req.body);
     res.redirect("/admin/dashboard/reports");
+});
+
+router.get("/userPdf", (req, res) => {
+    options.data = {
+        messages: commonFunctions.flashMessages(req),
+        userData: req.user,
+    };
+    res.render("usersPdf", options);
 });
 
 module.exports = router;

@@ -266,13 +266,19 @@ module.exports.bookTickets = (tickets) => {
     });
 };
 
-module.exports.getTickets = (adminId, all) => {
+module.exports.getTickets = (adminId, all, id) => {
     return new Promise((resolve, reject) => {
-        Tickets.findAll({
+        var query = {
             where: {
                 adminId,
             },
-        })
+        };
+
+        if (id) {
+            query.where.id = id;
+        }
+
+        Tickets.findAll(query)
             .then((data) => {
                 if (data.length == 0) {
                     return reject({
@@ -301,7 +307,7 @@ module.exports.getTickets = (adminId, all) => {
                                 dStateName: null,
                                 dStationName: null,
                                 ticketFare: null,
-                                ststus: null,
+                                status: null,
                             };
                             ticketData.id = ticket.id;
                             ticketData.status = ticket.status;

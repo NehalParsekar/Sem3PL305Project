@@ -1,3 +1,5 @@
+const pdf = require("html-pdf");
+
 module.exports.flashMessages = (req) => {
     return {
         success_msg: req.flash("success_msg"),
@@ -137,5 +139,20 @@ module.exports.changeStatus = (model, id) => {
             .catch((e) => {
                 reject(e);
             });
+    });
+};
+
+module.exports.convertToPdf = (pdfTemplate, array, userId, landscape) => {
+    return new Promise((resolve, reject) => {
+        pdf.create(pdfTemplate(array), {
+            format: "A4",
+            orientation: landscape ? "landscape" : "portrait",
+        }).toFile("./static/pdfs/" + userId + ".pdf", (err, result) => {
+            if (err) {
+                return reject(err);
+            } else {
+                return resolve(result);
+            }
+        });
     });
 };

@@ -8,6 +8,9 @@ const Routes = require("../models/Routes");
 const RouteTrains = require("../models/RouteTrain");
 const RouteSchedules = require("../models/RouteSchedule");
 const Tickets = require("../models/Tickets");
+const transactionPdfTemplate = require("../pdfTemplates/transactionPdf");
+const path = require("path");
+const fs = require("fs");
 
 const options = {
     layout: "user",
@@ -48,7 +51,7 @@ router.get("/tickets", (req, res) => {
             States.getAllStates()
                 .then((statesArray) => {
                     options.data.states = statesArray;
-                    Tickets.getTickets(req.user.id, false)
+                    Tickets.getTickets(req.user.id, false, false)
                         .then((ticketArray) => {
                             options.data.tickets = ticketArray;
                             res.render("tickets", options);
@@ -281,10 +284,23 @@ router.get("/tickets/cancel/:id", (req, res) => {
 router.get("/transactions", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
-    Tickets.getTickets(req.user.id, true)
+    Tickets.getTickets(req.user.id, true, false)
         .then((ticketsArray) => {
             options.data.transactions = ticketsArray;
-            res.render("transactions", options);
+            commonFunctions
+                .convertToPdf(
+                    transactionPdfTemplate,
+                    ticketsArray,
+                    req.user.id,
+                    true
+                )
+                .then((data) => {
+                    res.render("transactions", options);
+                })
+                .catch((e) => {
+                    console.log(e.message);
+                    res.render("transactions", options);
+                });
         })
         .catch((e) => {
             if (e.custom) {
@@ -297,6 +313,65 @@ router.get("/transactions", (req, res) => {
                 console.log(e.message);
             }
             res.render("transactions", options);
+        });
+});
+
+router.get("/transactions/pdf", (req, res) => {
+    res.sendFile(
+        path.join(__dirname, "../static/pdfs/" + req.user.id + ".pdf"),
+        (err) => {
+            var filePath = path.join(
+                __dirname,
+                "../static/pdfs/" + req.user.id + ".pdf"
+            );
+            try {
+                fs.unlinkSync(filePath);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    );
+});
+
+router.get("/transactions/pdf/:id", (req, res) => {
+    const ticketId = req.params.id;
+    Tickets.getTickets(req.user.id, false, ticketId)
+        .then((ticketArray) => {
+            var ticketTemplate = require("../pdfTemplates/ticketPdf");
+            commonFunctions
+                .convertToPdf(
+                    ticketTemplate,
+                    ticketArray[0],
+                    req.user.id,
+                    false
+                )
+                .then((data) => {
+                    res.sendFile(
+                        path.join(
+                            __dirname,
+                            "../static/pdfs/" + req.user.id + ".pdf"
+                        ),
+                        (err) => {
+                            var filePath = path.join(
+                                __dirname,
+                                "../static/pdfs/" + req.user.id + ".pdf"
+                            );
+                            try {
+                                fs.unlinkSync(filePath);
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }
+                    );
+                })
+                .catch((e) => {
+                    console.log(e.message);
+                    res.redirect("/dashboard/tickets");
+                });
+        })
+        .catch((e) => {
+            console.log(e.message);
+            res.redirect("/dashboard/tickets");
         });
 });
 

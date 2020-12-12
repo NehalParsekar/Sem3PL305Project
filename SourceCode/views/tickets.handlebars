@@ -179,6 +179,7 @@
                                     <th>Destination State</th>
                                     <th>Destination Station</th>
                                     <th>Fare</th>
+                                    <th>Download</th>
                                     <th>Cancel</th>
                                 </tr>
                             </thead>
@@ -198,9 +199,9 @@
                                     <td>{{dStationName}}</td>
                                     <td>{{ticketFare}}</td>
                                     <td>
-                                        {{!-- <a href="/dashboard/tickets/cancel/{{id}}">
-                                            <button type="button" class="btn btn-danger btn-sm">Cancel Ticket</button>
-                                        </a> --}}
+                                        <a href="/dashboard/transactions/pdf/{{id}}"><button class="btn btn-outline-success btn-sm"><strong>PDF </strong><i class="fa fa-download"></i></button></a>
+                                    </td>
+                                    <td>
                                         <button type="button" value="{{id}}" class="tCancel btn btn-danger btn-sm"
                                             data-toggle="modal" data-target="#exampleModal">Cancel Ticket</button>
                                     </td>
