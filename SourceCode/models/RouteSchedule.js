@@ -18,7 +18,7 @@ const RouteSchedule = db.define("RouteSchedule", {
 
 module.exports = RouteSchedule;
 
-module.exports.getSchedules = (routeId) => {
+module.exports.getSchedules = (routeId, all) => {
     return new Promise((resolve, reject) => {
         RouteSchedule.findAll({
             where: {
@@ -29,7 +29,7 @@ module.exports.getSchedules = (routeId) => {
                 if (data.length == 0) {
                     return reject({
                         custom: true,
-                        message: "No Scdules available",
+                        message: "No Schedules available",
                     });
                 } else {
                     var schedule,
@@ -46,7 +46,7 @@ module.exports.getSchedules = (routeId) => {
                                 schedule.departure +
                                 ", Arrival : " +
                                 schedule.arrival;
-                            if (schedule.status) {
+                            if (schedule.status || all) {
                                 scheduleArray.push(schedule);
                             }
                         });

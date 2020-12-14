@@ -16,6 +16,7 @@ const { Op } = require("sequelize");
 const path = require("path");
 const fs = require("fs");
 const userPdfTemplate = require("../pdfTemplates/userpdf");
+const bookingPdfTemplate = require("../pdfTemplates/bookingPdf");
 
 const options = {
     layout: "admin",
@@ -1313,6 +1314,7 @@ router.post("/users/filter", (req, res) => {
                             });
                     } else {
                         options.data.users = [];
+                        options.data.messageArray = messageArray;
                         commonFunctions
                             .convertToPdf(
                                 userPdfTemplate,
@@ -1322,12 +1324,13 @@ router.post("/users/filter", (req, res) => {
                             )
                             .then((data) => {
                                 options.data.messageArray = messageArray;
+                                res.render("users", options);
                             })
                             .catch((e) => {
                                 console.log(e.message);
                                 options.data.messageArray = messageArray;
+                                res.render("users", options);
                             });
-                        res.render("users", options);
                     }
                 })
                 .catch((e) => {
@@ -1342,20 +1345,7 @@ router.post("/users/filter", (req, res) => {
 });
 
 router.get("/users/pdf", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "../static/pdfs/" + req.user.id + ".pdf"),
-        (err) => {
-            var filePath = path.join(
-                __dirname,
-                "../static/pdfs/" + req.user.id + ".pdf"
-            );
-            try {
-                fs.unlinkSync(filePath);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-    );
+    commonFunctions.sendPdf(req, res);
 });
 
 router.get("/admins", (req, res) => {
@@ -1506,64 +1496,280 @@ router.post("/updatePassword", (req, res) => {
     }
 });
 
-router.get("/reports", (req, res) => {
+router.get("/bookings", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
     };
 
-    var basedOnList = [
-        {
-            title: "Bookings",
-            value: 0,
-            model: Bookings,
-        },
-        {
-            title: "Railway",
-            value: 1,
-            model: Trains,
-        },
-        {
-            title: "Tickets",
-            value: 2,
-            model: Tickets,
-        },
-        {
-            title: "Users",
-            value: 3,
-            model: Users,
-        },
-    ];
+    var messageArray = [];
 
-    var tableList = [
-        {
-            title: "Tickets",
-            value: 0,
-            model: Tickets,
+    Trains.findAll({
+        Where: {
+            adminId: req.user.id,
         },
-        {
-            title: "Users",
-            value: 1,
-            model: Users,
-        },
-    ];
-
-    options.data.tableList = tableList;
-    options.data.basedOnList = basedOnList;
-    res.render("reports", options);
+    })
+        .then((data) => {
+            if (data.length == 0) {
+                messageArray.push({
+                    text: "No trains added yet",
+                    type: "danger",
+                });
+                res.render("bookings", options);
+            } else {
+                var trainArray = [];
+                data.forEach((el) => {
+                    trainArray.push(el.dataValues);
+                });
+                options.data.trainArray = trainArray;
+                RouteTrain.getRoutes(trainArray[0].id)
+                    .then((routeArray) => {
+                        options.data.routeArray = routeArray;
+                        RouteSchedule.getSchedules(routeArray[0].id, true)
+                            .then((scheduleArray) => {
+                                options.data.scheduleArray = scheduleArray;
+                                res.render("bookings", options);
+                            })
+                            .catch((e) => {
+                                if (e.custom) {
+                                    messageArray.push({
+                                        text: e.message,
+                                        type: "danger",
+                                    });
+                                } else {
+                                    console.log(e.message);
+                                }
+                                res.render("bookings", options);
+                            });
+                    })
+                    .catch((e) => {
+                        if (e.custom) {
+                            messageArray.push({
+                                text: e.message,
+                                type: "danger",
+                            });
+                        } else {
+                            console.log(e.message);
+                        }
+                        res.render("bookings", options);
+                    });
+            }
+        })
+        .catch((e) => {
+            console.log(e.message);
+            res.render("bookings", options);
+        });
 });
 
-router.post("/reports", (req, res) => {
-    console.log(req.body);
-    res.redirect("/admin/dashboard/reports");
-});
-
-router.get("/userPdf", (req, res) => {
+router.post("/bookings", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
     };
-    res.render("usersPdf", options);
+
+    var messageArray = [];
+
+    Trains.findAll({
+        Where: {
+            adminId: req.user.id,
+        },
+    })
+        .then((data) => {
+            if (data.length == 0) {
+                messageArray.push({
+                    text: "No trains added yet",
+                    type: "danger",
+                });
+                res.render("bookings", options);
+            } else {
+                var trainArray = [];
+                data.forEach((el) => {
+                    trainArray.push(el.dataValues);
+                });
+                options.data.trainArray = trainArray;
+                RouteTrain.getRoutes(trainArray[0].id)
+                    .then((routeArray) => {
+                        options.data.routeArray = routeArray;
+                        RouteSchedule.getSchedules(routeArray[0].id, true)
+                            .then((scheduleArray) => {
+                                options.data.scheduleArray = scheduleArray;
+                                const {
+                                    bTrain,
+                                    bRoute,
+                                    bSchedule,
+                                    bDate,
+                                } = req.body;
+                                var query = {
+                                    where: {
+                                        trainId: bTrain,
+                                        routeId: bRoute,
+                                        scheduleId: bSchedule,
+                                    },
+                                };
+                                if (bDate != "") {
+                                    query.where.bookingDate = bDate;
+                                }
+
+                                Bookings.findAll(query)
+                                    .then((data) => {
+                                        if (data.length == 0) {
+                                            req.flash(
+                                                "error_msg",
+                                                "No Bookings available"
+                                            );
+                                            res.redirect(
+                                                "/admin/dashboard/bookings"
+                                            );
+                                        } else {
+                                            var bookingsArray = [];
+                                            data.forEach((el, i) => {
+                                                el.dataValues.index = i + 1;
+                                                bookingsArray.push(
+                                                    el.dataValues
+                                                );
+                                            });
+                                            options.data.bookingsArray = bookingsArray;
+                                            var pdfData = {
+                                                bookingsArray,
+                                                data: {},
+                                            };
+
+                                            promiseArray = [];
+                                            promiseArray.push(
+                                                Trains.findByPk(bTrain).then(
+                                                    (data) => {
+                                                        pdfData.data.trainName = data.get().trainName;
+                                                    }
+                                                )
+                                            );
+                                            promiseArray.push(
+                                                Routes.findByPk(bRoute).then(
+                                                    (data) => {
+                                                        pdfData.data.routeName = data.get().routeName;
+                                                    }
+                                                )
+                                            );
+                                            promiseArray.push(
+                                                Schedules.findByPk(
+                                                    bSchedule
+                                                ).then((data) => {
+                                                    pdfData.data.scheduleName = data.get().scheduleName;
+                                                })
+                                            );
+
+                                            Promise.all(promiseArray)
+                                                .then(() => {
+                                                    commonFunctions
+                                                        .convertToPdf(
+                                                            bookingPdfTemplate,
+                                                            pdfData,
+                                                            req.user.id,
+                                                            false
+                                                        )
+                                                        .then((data) => {
+                                                            options.data.showPdf = true;
+                                                            res.render(
+                                                                "bookings",
+                                                                options
+                                                            );
+                                                        })
+                                                        .catch((e) => {
+                                                            console.log(
+                                                                e.message
+                                                            );
+                                                            options.data.messageArray = messageArray;
+                                                            res.render(
+                                                                "bookings",
+                                                                options
+                                                            );
+                                                        });
+                                                })
+                                                .catch((e) => {
+                                                    console.log(e.message);
+                                                    res.redirect(
+                                                        "/admin/dashboard/bookings"
+                                                    );
+                                                });
+                                        }
+                                    })
+                                    .catch((e) => {
+                                        console.log(e.message);
+                                        res.redirect(
+                                            "/admin/dashboard/bookings"
+                                        );
+                                    });
+                            })
+                            .catch((e) => {
+                                if (e.custom) {
+                                    messageArray.push({
+                                        text: e.message,
+                                        type: "danger",
+                                    });
+                                } else {
+                                    console.log(e.message);
+                                }
+                                res.render("bookings", options);
+                            });
+                    })
+                    .catch((e) => {
+                        if (e.custom) {
+                            messageArray.push({
+                                text: e.message,
+                                type: "danger",
+                            });
+                        } else {
+                            console.log(e.message);
+                        }
+                        res.render("bookings", options);
+                    });
+            }
+        })
+        .catch((e) => {
+            console.log(e.message);
+            res.render("bookings", options);
+        });
+});
+
+router.get("/bookings/pdf", (req, res) => {
+    commonFunctions.sendPdf(req, res);
+});
+
+router.get("/bookings/getRoutes/:trainId", (req, res) => {
+    const trainId = req.params.trainId;
+    var sendData = {
+        error: false,
+        message: null,
+        routeArray: null,
+        scheduleArray: null,
+    };
+
+    RouteTrain.getRoutes(trainId)
+        .then((routeArray) => {
+            RouteSchedule.getSchedules(routeArray[0].id, true)
+                .then((scheduleArray) => {
+                    sendData.scheduleArray = scheduleArray;
+                    sendData.routeArray = routeArray;
+                    res.send(sendData);
+                })
+                .catch((e) => {
+                    sendData.error = true;
+                    if (e.custom) {
+                        sendData.message = e.message;
+                    } else {
+                        console.log(e.message);
+                    }
+                    res.send(sendData);
+                });
+        })
+        .catch((e) => {
+            sendData.error = true;
+            if (e.custom) {
+                sendData.message = e.message;
+            } else {
+                console.log(e.message);
+            }
+            res.send(sendData);
+        });
 });
 
 module.exports = router;

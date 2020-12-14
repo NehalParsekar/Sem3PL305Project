@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const db = require("../config/dbConfig");
 const Trains = require("./Trains");
 const Bookings = require("./Bookings");
+const Routes = require("./Routes");
 
 const RouteTrain = db.define("RouteTrain", {
     id: {
@@ -106,6 +107,48 @@ module.exports.getTrains = (routeId, scheduleId, date, count, isAc) => {
                                         });
                                 });
                             }
+                        })
+                        .catch((e) => {
+                            e.custom = false;
+                            return reject(e);
+                        });
+                }
+            })
+            .catch((e) => {
+                e.custom = false;
+                return reject(e);
+            });
+    });
+};
+
+module.exports.getRoutes = (trainId) => {
+    return new Promise((resolve, reject) => {
+        RouteTrain.findAll({
+            where: {
+                trainId,
+            },
+        })
+            .then((data) => {
+                if (data.length == 0) {
+                    return reject({
+                        custom: true,
+                        message: "No schedules for the train",
+                    });
+                } else {
+                    var routeArray = [];
+                    var promiseArray = [];
+                    var p;
+                    data.forEach((el) => {
+                        p = Routes.findByPk(el.dataValues.routeId).then(
+                            (data) => {
+                                routeArray.push(data.dataValues);
+                            }
+                        );
+                        promiseArray.push(p);
+                    });
+                    Promise.all(promiseArray)
+                        .then(() => {
+                            return resolve(routeArray);
                         })
                         .catch((e) => {
                             e.custom = false;

@@ -19,6 +19,7 @@
     <link href="/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
 
     <!-- Bootstrap CSS-->
+    
     <link href="/vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet" media="all">
 
     <!-- Vendor CSS-->
@@ -62,15 +63,15 @@
                         </li>
                         <li>
                             <a href="/admin/dashboard/states">
-                                <i class="fas fa-chart-bar"></i>States</a>
+                                <i class="fa fa-location-arrow"></i>States</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/stations">
-                                <i class="fas fa-table"></i>Stations</a>
+                                <i class="fas fa-stop"></i>Stations</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/trains">
-                                <i class="far fa-check-square"></i>Trains</a>
+                                <i class="fa fa-train"></i>Trains</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/schedules">
@@ -78,19 +79,25 @@
                         </li>
                         <li>
                             <a href="/admin/dashboard/routes">
-                                <i class="fas fa-map-marker-alt"></i>Routes</a>
-                        </li>
-                        <li>
-                            <a href="/admin/dashboard/users">
-                                <i class="fas fa-calendar-alt"></i>Users</a>
+                                <i class="fa fa-road"></i>Routes</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/admins">
-                                <i class="fas fa-tachometer-alt"></i>Admins</a>
+                                <i class="fa fa-user"></i>Admins</a>
                         </li>
-                        <li>
-                            <a href="/admin/dashboard/reports">
-                                <i class="fas fa-tachometer-alt"></i>Reports</a>
+                        <li class="has-sub">
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-info-circle"></i>Reports</a>
+                            <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                <li>
+                                    <a href="/admin/dashboard/users">
+                                        <i class="fa fa-users"></i>Users</a>
+                                </li>
+                                <li>
+                                    <a href="/admin/dashboard/bookings">
+                                        <i class="fa fa-train"></i>Train Bookings</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -114,15 +121,15 @@
                         </li>
                         <li>
                             <a href="/admin/dashboard/states">
-                                <i class="fas fa-chart-bar"></i>States</a>
+                                <i class="fa fa-location-arrow"></i>States</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/stations">
-                                <i class="fas fa-table"></i>Stations</a>
+                                <i class="fas fa-stop"></i>Stations</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/trains">
-                                <i class="far fa-check-square"></i>Trains</a>
+                                <i class="fa fa-train"></i>Trains</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/schedules">
@@ -130,19 +137,25 @@
                         </li>
                         <li>
                             <a href="/admin/dashboard/routes">
-                                <i class="fas fa-map-marker-alt"></i>Routes</a>
-                        </li>
-                        <li>
-                            <a href="/admin/dashboard/users">
-                                <i class="fas fa-calendar-alt"></i>Users</a>
+                                <i class="fa fa-road"></i>Routes</a>
                         </li>
                         <li>
                             <a href="/admin/dashboard/admins">
-                                <i class="fas fa-tachometer-alt"></i>Admins</a>
+                                <i class="fa fa-user"></i>Admins</a>
                         </li>
-                        <li>
-                            <a href="/admin/dashboard/reports">
-                                <i class="fas fa-tachometer-alt"></i>Reports</a>
+                        <li class="has-sub">
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-info-circle"></i>Reports</a>
+                            <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                <li>
+                                    <a href="/admin/dashboard/users">
+                                        <i class="fa fa-users"></i>Users</a>
+                                </li>
+                                <li>
+                                    <a href="/admin/dashboard/bookings">
+                                        <i class="fa fa-train"></i>Train Bookings</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </nav>
@@ -231,6 +244,40 @@
             <!-- Main JS-->
             <script src="/js/main.js"></script>
             <script src="/js/userTicket.js"></script>
+            <script>
+                $('#bTrain').on('change', function(){
+                    var trainId = this.value;
+                    var url = 'bookings/getRoutes/' + trainId;
+                    $.get(url, (data) => {
+                        if(data.error){
+
+                        } else {
+                            var routeArray = data.routeArray;
+                            var scheduleArray = data.scheduleArray;
+                            var routeOptions = "";
+                            var scheduleOptions = "";
+                            routeArray.forEach(el => {
+                                routeOptions += "<option value='" +
+                                    el.id +
+                                    "'>" +
+                                    el.routeName +
+                                    "</option>";
+                            });
+                            scheduleArray.forEach(el => {
+                                scheduleOptions += "<option value='" +
+                                    el.id +
+                                    "'>" +
+                                    el.scheduleName +
+                                    "</option>";
+                            });
+                            $('#bRoute').empty();
+                            $('#bRoute').append(routeOptions);
+                            $('#bSchedule').empty();
+                            $('#bSchedule').append(scheduleOptions);
+                        }
+                    });
+                })
+            </script>
         </div>
 </body>
 

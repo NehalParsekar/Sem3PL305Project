@@ -8,7 +8,6 @@ $("#tSourceState").on("change", function () {
     $("#tDate").val("");
 
     var stateId = this.value;
-    var stateName = $("#tSourceState option:selected").text();
     if (stateId != "0") {
         var url = "sourceStation/" + stateId;
         $.get(url, function (data) {

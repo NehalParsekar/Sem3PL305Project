@@ -126,9 +126,11 @@ router.get("/getRoutes/:sStationId/:dStationId", (req, res) => {
         .then((data) => {
             routeArray = data;
             data.forEach((route) => {
-                p = RouteSchedules.getSchedules(route.id).then((data) => {
-                    scheduleArray = data;
-                });
+                p = RouteSchedules.getSchedules(route.id, false).then(
+                    (data) => {
+                        scheduleArray = data;
+                    }
+                );
                 promiseArray.push(p);
             });
 
@@ -317,20 +319,7 @@ router.get("/transactions", (req, res) => {
 });
 
 router.get("/transactions/pdf", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "../static/pdfs/" + req.user.id + ".pdf"),
-        (err) => {
-            var filePath = path.join(
-                __dirname,
-                "../static/pdfs/" + req.user.id + ".pdf"
-            );
-            try {
-                fs.unlinkSync(filePath);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-    );
+    commonFunctions.sendPdf(req, res);
 });
 
 router.get("/transactions/pdf/:id", (req, res) => {
