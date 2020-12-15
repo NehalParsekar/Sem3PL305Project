@@ -1,8 +1,6 @@
 -- Author: Nehal Parsekar
 -- Roll No: 1942
 
-USE railway;
-
 CREATE TABLE Users(
 	id VARCHAR(256) PRIMARY KEY,
 	userName VARCHAR(32) NOT NULL,
@@ -126,18 +124,6 @@ CREATE TABLE Tickets(
 	createdAt TIMESTAMP NOT NULL,
 	updatedAt TIMESTAMP NOT NULL
 );
-
-SHOW TABLES;
-
-DROP TABLE Tickets;
-
-DELETE FROM Bookings WHERE 1=1;
-DELETE FROM Tickets WHERE 1=1;
-
-SELECT * FROM Bookings b ;
-SELECT * FROM Tickets t ;
-
-DESC Users;
 
 
 

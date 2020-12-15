@@ -1,6 +1,5 @@
 const Sequelize = require("sequelize");
 const db = require("../config/dbConfig");
-const Members = require("../models/Members");
 const bcrypt = require("bcryptjs");
 
 const Users = db.define("User", {
@@ -67,84 +66,6 @@ module.exports.getAllUsers = (type) => {
                     index++;
                 });
                 resolve(userArray);
-            })
-            .catch((e) => {
-                return reject(e);
-            });
-    });
-};
-
-module.exports.saveMember = (member, adminId) => {
-    return new Promise((resolve, reject) => {
-        Users.findOne({
-            where: {
-                userEmail: member.userEmail,
-            },
-        })
-            .then((user) => {
-                if (user == null) {
-                    Users.create(member)
-                        .then((user) => {
-                            Members.create({
-                                adminId,
-                                userId: user.id,
-                            })
-                                .then(() => {
-                                    return resolve();
-                                })
-                                .catch((e) => {
-                                    return reject(e);
-                                });
-                        })
-                        .catch((e) => {
-                            return reject(e);
-                        });
-                } else {
-                    return reject({
-                        custom: true,
-                        message: "User Email already exists",
-                    });
-                }
-            })
-            .catch((e) => {
-                return reject(e);
-            });
-    });
-};
-
-module.exports.getMembers = (adminId) => {
-    return new Promise((resolve, reject) => {
-        Members.findAll({
-            where: {
-                adminId,
-            },
-        })
-            .then((data) => {
-                var promiseArray = [];
-                var memberArray = [];
-                var p;
-                data.forEach((member) => {
-                    p = Users.findByPk(member.dataValues.userId).then(
-                        (data) => {
-                            memberArray.push(data.get());
-                        }
-                    );
-                    promiseArray.push(p);
-                });
-                Promise.all(promiseArray)
-                    .then(() => {
-                        var index = 1;
-                        memberArray.forEach((el) => {
-                            el.index = index;
-                            el.userYear =
-                                new Date().getFullYear() - el.userYear;
-                            index++;
-                        });
-                        return resolve(memberArray);
-                    })
-                    .catch((e) => {
-                        return reject(e);
-                    });
             })
             .catch((e) => {
                 return reject(e);

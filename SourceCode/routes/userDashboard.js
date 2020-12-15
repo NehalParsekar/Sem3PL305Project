@@ -11,6 +11,7 @@ const Tickets = require("../models/Tickets");
 const transactionPdfTemplate = require("../pdfTemplates/transactionPdf");
 const path = require("path");
 const fs = require("fs");
+const Members = require("../models/Members");
 
 const options = {
     layout: "user",
@@ -23,11 +24,65 @@ router.get("/", (req, res) => {
         data: null,
     };
     options.data = data;
+    var messageArray = [];
 
     if (data.userData.userType === "admin") {
         res.redirect("/admin/dashboard");
     }
-    res.render("userDashboard", options);
+
+    var monthData = {
+        month: false,
+        year: false,
+    };
+
+    Tickets.getTickets(req.user.id, true, false, monthData)
+        .then((data) => {
+            options.data.monthTransactions = data.monthTransactions;
+            if (data.monthTransactions.length == 0) {
+                messageArray.push({
+                    text: "No transactions in this month",
+                    type: "danger",
+                });
+            }
+            var tActive = 0;
+            var tCancelled = 0;
+            var tCost = 0;
+            data.ticketsArray.forEach((el) => {
+                if (el.status) {
+                    tActive++;
+                    tCost += el.ticketFare;
+                } else {
+                    tCancelled++;
+                }
+            });
+            options.data.tActive = tActive;
+            options.data.tCancelled = tCancelled;
+            options.data.tCost = tCost;
+            Members.getMembers(req.user.id)
+                .then((memberArray) => {
+                    options.data.memberCount = memberArray.length;
+                    res.render("userDashboard", options);
+                })
+                .catch((e) => {
+                    if (e.custom) {
+                        messageArray.push({
+                            text: e.message,
+                            type: "danger",
+                        });
+                    }
+                    options.data.messageArray = messageArray;
+                    res.render("userDashboard", options);
+                });
+        })
+        .catch((e) => {
+            if (e.custom) {
+                messageArray.push({
+                    text: e.message,
+                    type: "danger",
+                });
+            }
+            res.render("userDashboard", options);
+        });
 });
 
 router.get("/profile", (req, res) => {
@@ -42,7 +97,7 @@ router.get("/tickets", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
     options.data.messages = commonFunctions.flashMessages(req);
-    Users.getMembers(req.user.id)
+    Members.getMembers(req.user.id)
         .then((members) => {
             members.unshift(req.user);
             members[0].userName = "Myself";
@@ -51,9 +106,9 @@ router.get("/tickets", (req, res) => {
             States.getAllStates()
                 .then((statesArray) => {
                     options.data.states = statesArray;
-                    Tickets.getTickets(req.user.id, false, false)
-                        .then((ticketArray) => {
-                            options.data.tickets = ticketArray;
+                    Tickets.getTickets(req.user.id, false, false, false)
+                        .then((data) => {
+                            options.data.tickets = data.ticketsArray;
                             res.render("tickets", options);
                         })
                         .catch((e) => {
@@ -286,13 +341,14 @@ router.get("/tickets/cancel/:id", (req, res) => {
 router.get("/transactions", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
-    Tickets.getTickets(req.user.id, true, false)
-        .then((ticketsArray) => {
-            options.data.transactions = ticketsArray;
+    Tickets.getTickets(req.user.id, true, false, false)
+        .then((data) => {
+            options.data.transactions = data.ticketsArray;
+            options.data.yearArray = data.yearArray;
             commonFunctions
                 .convertToPdf(
                     transactionPdfTemplate,
-                    ticketsArray,
+                    data.ticketsArray,
                     req.user.id,
                     true
                 )
@@ -318,19 +374,87 @@ router.get("/transactions", (req, res) => {
         });
 });
 
+router.post("/transactions", (req, res) => {
+    const { tMonth, tYear } = req.body;
+    const month = tMonth.split("-")[1];
+    options.data.userData = req.user;
+
+    var messageArray = [];
+
+    var monthData = {
+        month: parseInt(month),
+        year: parseInt(tYear),
+    };
+
+    Tickets.getTickets(req.user.id, true, false, monthData)
+        .then((data) => {
+            if (data.monthTransactions.length == 0) {
+                messageArray.push({
+                    text: "No transactions in given period",
+                    type: "danger",
+                });
+                options.data.messageArray = messageArray;
+                options.data.transactions = [];
+                commonFunctions
+                    .convertToPdf(
+                        transactionPdfTemplate,
+                        data.monthTransactions,
+                        req.user.id,
+                        true
+                    )
+                    .then((data) => {
+                        res.render("transactions", options);
+                    })
+                    .catch((e) => {
+                        console.log(e.message);
+                        res.render("transactions", options);
+                    });
+            } else {
+                options.data.messageArray = [];
+                options.data.transactions = data.monthTransactions;
+                commonFunctions
+                    .convertToPdf(
+                        transactionPdfTemplate,
+                        data.monthTransactions,
+                        req.user.id,
+                        true
+                    )
+                    .then((data) => {
+                        res.render("transactions", options);
+                    })
+                    .catch((e) => {
+                        console.log(e.message);
+                        res.render("transactions", options);
+                    });
+            }
+        })
+        .catch((e) => {
+            if (e.custom) {
+                messageArray.push({
+                    text: e.message,
+                    type: "danger",
+                });
+            } else {
+                console.log(e.message);
+            }
+            options.data.messageArray = messageArray;
+            res.render("transactions", options);
+        });
+});
+
 router.get("/transactions/pdf", (req, res) => {
     commonFunctions.sendPdf(req, res);
 });
 
 router.get("/transactions/pdf/:id", (req, res) => {
     const ticketId = req.params.id;
-    Tickets.getTickets(req.user.id, false, ticketId)
-        .then((ticketArray) => {
+    Tickets.getTickets(req.user.id, false, ticketId, false)
+        .then((data) => {
             var ticketTemplate = require("../pdfTemplates/ticketPdf");
             commonFunctions
                 .convertToPdf(
                     ticketTemplate,
-                    ticketArray[0],
+                    data.ticketsArray[0],
                     req.user.id,
                     false
                 )
@@ -368,20 +492,21 @@ router.get("/members", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
     options.data.messages = commonFunctions.flashMessages(req);
-    Users.getMembers(req.user.id)
+    Members.getMembers(req.user.id)
         .then((userArray) => {
-            if (userArray.length == 0) {
-                messageArray.push({
-                    type: "danger",
-                    text: "No members added.",
-                });
-            }
-            options.data.messageArray = messageArray;
             options.data.users = userArray;
             res.render("members", options);
         })
         .catch((e) => {
-            console.log(e.message);
+            if (e.custom) {
+                messageArray.push({
+                    type: "danger",
+                    text: e.message,
+                });
+                options.data.messageArray = messageArray;
+            } else {
+                console.log(e.message);
+            }
             res.render("members", options);
         });
 });
@@ -392,7 +517,7 @@ router.post("/members", (req, res) => {
     options.data.userData = req.user;
     var messageArray = [];
 
-    Users.saveMember(
+    Members.saveMember(
         {
             userName: name,
             userAddress: address,

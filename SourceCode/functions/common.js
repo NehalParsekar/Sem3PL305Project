@@ -1,6 +1,5 @@
 const pdf = require("html-pdf");
 const path = require("path");
-const fs = require("fs");
 
 module.exports.flashMessages = (req) => {
     return {
@@ -161,17 +160,6 @@ module.exports.convertToPdf = (pdfTemplate, array, userId, landscape) => {
 
 module.exports.sendPdf = (req, res) => {
     res.sendFile(
-        path.join(__dirname, "../static/pdfs/" + req.user.id + ".pdf"),
-        (err) => {
-            var filePath = path.join(
-                __dirname,
-                "../static/pdfs/" + req.user.id + ".pdf"
-            );
-            try {
-                fs.unlinkSync(filePath);
-            } catch (e) {
-                console.log(e);
-            }
-        }
+        path.join(__dirname, "../static/pdfs/" + req.user.id + ".pdf")
     );
 };

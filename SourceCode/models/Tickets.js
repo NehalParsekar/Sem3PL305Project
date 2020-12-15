@@ -266,7 +266,7 @@ module.exports.bookTickets = (tickets) => {
     });
 };
 
-module.exports.getTickets = (adminId, all, id) => {
+module.exports.getTickets = (adminId, all, id, month) => {
     return new Promise((resolve, reject) => {
         var query = {
             where: {
@@ -287,12 +287,14 @@ module.exports.getTickets = (adminId, all, id) => {
                     });
                 } else {
                     var ticket,
-                        ticketArray = [];
+                        ticketsArray = [];
                     var promiseArray = [],
                         promises = [];
+                    var yearArray = [];
                     data.forEach((el) => {
                         ticket = el.dataValues;
                         if (ticket.status || all) {
+                            yearArray.push(ticket.ticketDate.split("-")[0]);
                             var ticketData = {
                                 id: null,
                                 index: null,
@@ -364,23 +366,61 @@ module.exports.getTickets = (adminId, all, id) => {
                             );
                             promises.push(
                                 Promise.all(promiseArray).then(() => {
-                                    ticketArray.push(ticketData);
+                                    ticketsArray.push(ticketData);
                                 })
                             );
                         }
                     });
                     Promise.all(promises)
                         .then(() => {
-                            ticketArray.sort((a, b) => {
+                            ticketsArray.sort((a, b) => {
                                 var dateA = new Date(a.ticketDate);
                                 var dateB = new Date(b.ticketDate);
 
                                 return dateA.valueOf() - dateB.valueOf();
                             });
-                            ticketArray.forEach((el, i) => {
+                            ticketsArray.forEach((el, i) => {
                                 el.index = i + 1;
                             });
-                            return resolve(ticketArray);
+
+                            var monthTransactions = [];
+                            var thisDate = new Date();
+                            var thisMonth = month.month
+                                ? month.month
+                                : thisDate.getMonth() + 1;
+                            var thisYear = month.year
+                                ? month.year
+                                : thisDate.getFullYear();
+                            if (month) {
+                                ticketsArray.forEach((el) => {
+                                    var arrayMonth = parseInt(
+                                        el.ticketDate.split("-")[1]
+                                    );
+                                    var arrayYear = parseInt(
+                                        el.ticketDate.split("-")[0]
+                                    );
+
+                                    if (
+                                        thisMonth == arrayMonth &&
+                                        thisYear == arrayYear
+                                    ) {
+                                        monthTransactions.push(el);
+                                    }
+                                });
+                            }
+
+                            yearArray = Array.from(new Set(yearArray));
+                            yearArray.sort((a, b) => {
+                                return a - b;
+                            });
+
+                            var sendData = {
+                                yearArray,
+                                ticketsArray,
+                                monthTransactions,
+                            };
+
+                            return resolve(sendData);
                         })
                         .catch((e) => {
                             e.custom = false;
