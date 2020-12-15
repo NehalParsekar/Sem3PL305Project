@@ -22,6 +22,7 @@ router.get("/", (req, res) => {
     var data = {
         userData: req.user,
         data: null,
+        title: "Dashboard",
     };
     options.data = data;
     var messageArray = [];
@@ -89,6 +90,7 @@ router.get("/profile", (req, res) => {
     options.data = {
         userData: req.user,
         messages: commonFunctions.flashMessages(req),
+        title: "Profile",
     };
     res.render("userProfile", options);
 });
@@ -96,6 +98,7 @@ router.get("/profile", (req, res) => {
 router.get("/tickets", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
+    options.data.title = "Tickets";
     options.data.messages = commonFunctions.flashMessages(req);
     Members.getMembers(req.user.id)
         .then((members) => {
@@ -103,7 +106,7 @@ router.get("/tickets", (req, res) => {
             members[0].userName = "Myself";
             options.data.members = members;
 
-            States.getAllStates()
+            States.getAllStates(false)
                 .then((statesArray) => {
                     options.data.states = statesArray;
                     Tickets.getTickets(req.user.id, false, false, false)
@@ -341,6 +344,7 @@ router.get("/tickets/cancel/:id", (req, res) => {
 router.get("/transactions", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
+    options.data.title = "Transactions";
     Tickets.getTickets(req.user.id, true, false, false)
         .then((data) => {
             options.data.transactions = data.ticketsArray;
@@ -491,6 +495,7 @@ router.get("/transactions/pdf/:id", (req, res) => {
 router.get("/members", (req, res) => {
     var messageArray = [];
     options.data.userData = req.user;
+    options.data.title = "Members";
     options.data.messages = commonFunctions.flashMessages(req);
     Members.getMembers(req.user.id)
         .then((userArray) => {
@@ -551,6 +556,7 @@ router.post("/members", (req, res) => {
 
 router.get("/members/update/:id", (req, res) => {
     options.data.userData = req.user;
+    options.data.title = "Members";
     var messageArray = [];
 
     Users.findByPk(req.params.id)

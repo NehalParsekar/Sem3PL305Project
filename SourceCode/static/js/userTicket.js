@@ -207,3 +207,66 @@ $(".tCancel").on("click", function () {
 $("#minAge").on("change", function () {
     $("#maxAge").attr("min", this.value);
 });
+
+function getSchedules(routeId) {
+    $("#bSchedule").empty();
+    var url = "bookings/getSchedules/" + routeId;
+    $.get(url, function (data) {
+        if (data.error) {
+            $(".tMessage").show();
+            $(".tMessageText").text(data.message);
+        } else {
+            var scheduleArray = data.scheduleArray;
+            var scheduleOptions = "";
+            scheduleArray.forEach((el) => {
+                scheduleOptions +=
+                    "<option value='" +
+                    el.id +
+                    "'>" +
+                    el.scheduleName +
+                    "</option>";
+            });
+            $("#bSchedule").empty();
+            $("#bSchedule").append(scheduleOptions);
+        }
+    });
+}
+
+$("#bTrain").on("change", function () {
+    $(".alert").hide();
+    var trainId = this.value;
+    var url = "bookings/getRoutes/" + trainId;
+    $.get(url, (data) => {
+        if (data.error) {
+            $(".tMessage").show();
+            $(".tMessageText").text(data.message);
+            $("#bRoute").empty();
+        } else {
+            var routeArray = data.routeArray;
+            var routeOptions = "";
+            routeArray.forEach((el) => {
+                routeOptions +=
+                    "<option value='" +
+                    el.id +
+                    "'>" +
+                    el.routeName +
+                    "</option>";
+            });
+            $("#bRoute").empty();
+            $("#bRoute").append(routeOptions);
+            getSchedules(routeArray[0].id);
+        }
+    });
+});
+
+$("#bRoute").on("change", function () {
+    getSchedules(this.value);
+});
+
+if ($("#dashMain").length) {
+    var url = "/admin/dashboard/getChartData";
+    $.get(url, function (data) {
+        var chartElement = document.getElementById("trainBarChart");
+        new Chart(chartElement, data);
+    });
+}

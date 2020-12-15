@@ -64,3 +64,72 @@ module.exports.getBookings = (routeId, scheduleId, trainId, bookingDate) => {
             });
     });
 };
+
+module.exports.getBookingsThisMonth = (adminId) => {
+    return new Promise((resolve, reject) => {
+        var thisDate = new Date();
+        var thisMonth = thisDate.getMonth() + 1;
+        var thisYear = thisDate.getFullYear();
+
+        Trains.findAll({
+            where: {
+                adminId,
+            },
+        })
+            .then((data) => {
+                if (data.length == 0) {
+                    return reject({});
+                } else {
+                    var p,
+                        promiseArray = [];
+                    var trainBooking = {};
+                    data.forEach((el) => {
+                        var trainId = el.dataValues.id;
+                        var trainName = el.dataValues.trainName;
+                        trainBooking[trainName] = {
+                            bAcSeats: 0,
+                            bGeneralSeats: 0,
+                        };
+                        p = Bookings.findAll({
+                            where: {
+                                trainId,
+                            },
+                        }).then((data) => {
+                            if (data.length != 0) {
+                                data.forEach((el) => {
+                                    var element = el.dataValues;
+                                    var arrayMonth = parseInt(
+                                        element.bookingDate.split("-")[1]
+                                    );
+                                    var arrayYear = parseInt(
+                                        element.bookingDate.split("-")[0]
+                                    );
+
+                                    if (
+                                        thisMonth == arrayMonth &&
+                                        thisYear == arrayYear
+                                    ) {
+                                        trainBooking[trainName].bAcSeats +=
+                                            element.bAcSeats;
+                                        trainBooking[trainName].bGeneralSeats +=
+                                            element.bGeneralSeats;
+                                    }
+                                });
+                            }
+                        });
+                        promiseArray.push(p);
+                    });
+                    Promise.all(promiseArray)
+                        .then(() => {
+                            return resolve(trainBooking);
+                        })
+                        .catch((e) => {
+                            return reject({});
+                        });
+                }
+            })
+            .catch((e) => {
+                return reject({});
+            });
+    });
+};

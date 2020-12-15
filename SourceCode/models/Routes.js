@@ -70,3 +70,49 @@ module.exports.getRoutesBetweenStations = (sStationId, dStationId) => {
             });
     });
 };
+
+module.exports.getRoutes = (adminId) => {
+    return new Promise((resolve, reject) => {
+        Routes.findAll()
+            .then((data) => {
+                if (data.length == 0) {
+                    return reject({
+                        custom: true,
+                        message: "No Routes available",
+                    });
+                } else {
+                    var route,
+                        routesArray = [];
+                    data.forEach((el) => {
+                        route = el.dataValues;
+                        if (route.status) {
+                            if (adminId) {
+                                if (route.adminId == adminId) {
+                                    routesArray.push(route);
+                                }
+                            } else {
+                                routesArray.push(route);
+                            }
+                        }
+                    });
+                    routesArray.sort((a, b) => {
+                        var nameA = a.routeName.toUpperCase();
+                        var nameB = b.routeName.toUpperCase();
+
+                        if (nameA < nameB) {
+                            return -1;
+                        } else if (nameA > nameB) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                    return resolve(routesArray);
+                }
+            })
+            .catch((e) => {
+                e.custom = false;
+                return reject(e);
+            });
+    });
+};

@@ -21,7 +21,7 @@ const States = db.define("State", {
 
 module.exports = States;
 
-module.exports.getAllStates = () => {
+module.exports.getAllStates = (adminId) => {
     return new Promise((resolve, reject) => {
         States.findAll()
             .then((data) => {
@@ -36,7 +36,13 @@ module.exports.getAllStates = () => {
                     data.forEach((el) => {
                         state = el.dataValues;
                         if (state.status) {
-                            statesArray.push(state);
+                            if (adminId) {
+                                if (state.adminId == adminId) {
+                                    statesArray.push(state);
+                                }
+                            } else {
+                                statesArray.push(state);
+                            }
                         }
                     });
                     statesArray.sort((a, b) => {

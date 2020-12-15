@@ -11,10 +11,7 @@ const RouteTrain = require("../models/RouteTrain");
 const RouteSchedule = require("../models/RouteSchedule");
 const Users = require("../models/Users");
 const Bookings = require("../models/Bookings");
-const Tickets = require("../models/Tickets");
 const { Op } = require("sequelize");
-const path = require("path");
-const fs = require("fs");
 const userPdfTemplate = require("../pdfTemplates/userpdf");
 const bookingPdfTemplate = require("../pdfTemplates/bookingPdf");
 
@@ -27,13 +24,160 @@ router.get("/", (req, res) => {
     var data = {
         userData: req.user,
         data: null,
+        title: "Dashboard",
     };
     options.data = data;
 
     if (data.userData.userType === "user") {
         res.redirect("/dashboard");
     }
-    res.render("adminDashboard", options);
+
+    var statesCount = 0;
+    var stationsCount = 0;
+    var trainsCount = 0;
+    var schedulesCount = 0;
+    var routesCount = 0;
+    var adminsCount = 0;
+    var usersCount = 0;
+
+    var promiseArray = [];
+
+    promiseArray.push(
+        States.getAllStates(req.user.id).then((states) => {
+            statesCount = states.length;
+        })
+    );
+
+    promiseArray.push(
+        Stations.getStations(req.user.id).then((stations) => {
+            stationsCount = stations.length;
+        })
+    );
+
+    promiseArray.push(
+        Trains.getTrains(req.user.id).then((trains) => {
+            trainsCount = trains.length;
+        })
+    );
+
+    promiseArray.push(
+        Schedules.getSchedules(req.user.id).then((schedules) => {
+            schedulesCount = schedules.length;
+        })
+    );
+
+    promiseArray.push(
+        Routes.getRoutes(req.user.id).then((routes) => {
+            routesCount = routes.length;
+        })
+    );
+
+    promiseArray.push(
+        Users.getAllUsers("admin").then((admins) => {
+            adminsCount = admins.length;
+        })
+    );
+
+    promiseArray.push(
+        Users.getAllUsers("user").then((users) => {
+            usersCount = users.length;
+        })
+    );
+
+    Promise.all(promiseArray)
+        .then(() => {
+            options.data.statesCount = statesCount;
+            options.data.stationsCount = stationsCount;
+            options.data.trainsCount = trainsCount;
+            options.data.schedulesCount = schedulesCount;
+            options.data.routesCount = routesCount;
+            options.data.adminsCount = adminsCount;
+            options.data.usersCount = usersCount;
+            res.render("adminDashboard", options);
+        })
+        .catch((e) => {
+            console.log(e.message);
+            options.data.statesCount = statesCount;
+            options.data.stationsCount = stationsCount;
+            options.data.trainsCount = trainsCount;
+            options.data.schedulesCount = schedulesCount;
+            options.data.routesCount = routesCount;
+            options.data.adminsCount = adminsCount;
+            options.data.usersCount = usersCount;
+            res.render("adminDashboard", options);
+        });
+});
+
+router.get("/getChartData", (req, res) => {
+    var data = {};
+    Bookings.getBookingsThisMonth(req.user.id)
+        .then((trainBookings) => {
+            var acSeats = [],
+                generalSeats = [];
+            var labels = [];
+            Object.entries(trainBookings).forEach(([key, value]) => {
+                labels.push(key);
+                acSeats.push(value.bAcSeats);
+                generalSeats.push(value.bGeneralSeats);
+            });
+
+            data = {
+                type: "bar",
+                defaultFontFamily: "Poppins",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: "Booke AC Seats",
+                            data: acSeats,
+                            borderColor: "rgb(0, 12, 247)",
+                            borderWidth: "0",
+                            backgroundColor: "rgb(50, 55, 199)",
+                            fontFamily: "Poppins",
+                        },
+                        {
+                            label: "Booked General Seats",
+                            data: generalSeats,
+                            borderColor: "rgb(255, 0, 0)",
+                            borderWidth: "0",
+                            backgroundColor: "rgba(196, 57, 57)",
+                            fontFamily: "Poppins",
+                        },
+                    ],
+                },
+                options: {
+                    legend: {
+                        position: "top",
+                        labels: {
+                            fontFamily: "Poppins",
+                        },
+                    },
+                    scales: {
+                        xAxes: [
+                            {
+                                ticks: {
+                                    fontFamily: "Poppins",
+                                },
+                            },
+                        ],
+                        yAxes: [
+                            {
+                                ticks: {
+                                    beginAtZero: true,
+                                    fontFamily: "Poppins",
+                                },
+                            },
+                        ],
+                    },
+                },
+            };
+
+            res.send(data);
+        })
+        .catch((e) => {
+            console.log(e);
+            res.send(data);
+        });
 });
 
 router.get("/states", (req, res) => {
@@ -44,6 +188,7 @@ router.get("/states", (req, res) => {
                 messages: commonFunctions.flashMessages(req),
                 userData: req.user,
                 states,
+                title: "States",
             };
 
             var messageArray = [];
@@ -92,6 +237,7 @@ router.get("/states/update/:id", (req, res) => {
                 messages: commonFunctions.flashMessages(req),
                 userData: req.user,
                 states,
+                title: "States",
             };
 
             var messageArray = [];
@@ -184,6 +330,7 @@ router.get("/stations", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Stations",
     };
 
     var messageArray = [];
@@ -253,6 +400,7 @@ router.get("/stations/update/:id/:stateName", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Stations",
     };
 
     var messageArray = [];
@@ -372,6 +520,7 @@ router.get("/trains", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Trains",
     };
 
     var messageArray = [];
@@ -424,6 +573,7 @@ router.get("/trains/update/:id", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Trains",
     };
 
     var messageArray = [];
@@ -529,6 +679,7 @@ router.get("/schedules", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Schedules",
     };
 
     var messageArray = [];
@@ -582,6 +733,7 @@ router.get("/schedules/update/:id", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Schedules",
     };
 
     var messageArray = [];
@@ -704,6 +856,7 @@ router.get("/routes", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Routes",
     };
 
     var messageArray = [];
@@ -883,6 +1036,7 @@ router.get("/routes/update/:id/:sStation/:dStation", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Routes",
     };
 
     var messageArray = [];
@@ -1126,6 +1280,7 @@ router.get("/users", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Users",
     };
 
     var messageArray = [];
@@ -1161,6 +1316,7 @@ router.post("/users/search", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Users",
     };
     var messageArray = [
         {
@@ -1252,6 +1408,7 @@ router.post("/users/filter", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Users",
     };
     var messageArray = [
         {
@@ -1352,6 +1509,7 @@ router.get("/admins", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Admins",
     };
 
     var messageArray = [];
@@ -1389,6 +1547,7 @@ router.post("/admins", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Admins",
     };
 
     Users.count({ where: { userEmail: email, userType: "admin" } })
@@ -1454,6 +1613,7 @@ router.get("/profile", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Profile",
     };
 
     res.render("adminProfile", options);
@@ -1500,6 +1660,7 @@ router.get("/bookings", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Bookings",
     };
 
     var messageArray = [];
@@ -1515,6 +1676,7 @@ router.get("/bookings", (req, res) => {
                     text: "No trains added yet",
                     type: "danger",
                 });
+                options.data.messageArray = messageArray;
                 res.render("bookings", options);
             } else {
                 var trainArray = [];
@@ -1536,6 +1698,7 @@ router.get("/bookings", (req, res) => {
                                         text: e.message,
                                         type: "danger",
                                     });
+                                    options.data.messageArray = messageArray;
                                 } else {
                                     console.log(e.message);
                                 }
@@ -1548,6 +1711,7 @@ router.get("/bookings", (req, res) => {
                                 text: e.message,
                                 type: "danger",
                             });
+                            options.data.messageArray = messageArray;
                         } else {
                             console.log(e.message);
                         }
@@ -1561,10 +1725,33 @@ router.get("/bookings", (req, res) => {
         });
 });
 
+router.get("/bookings/getSchedules/:routeId", (req, res) => {
+    var sendData = {
+        error: false,
+        message: null,
+        scheduleArray: null,
+    };
+    RouteSchedule.getSchedules(req.params.routeId, true)
+        .then((scheduleArray) => {
+            sendData.scheduleArray = scheduleArray;
+            res.send(sendData);
+        })
+        .catch((e) => {
+            sendData.error = true;
+            if (e.custom) {
+                sendData.message = e.message;
+            } else {
+                console.log(e.message);
+            }
+            res.send(sendData);
+        });
+});
+
 router.post("/bookings", (req, res) => {
     options.data = {
         messages: commonFunctions.flashMessages(req),
         userData: req.user,
+        title: "Bookings",
     };
 
     var messageArray = [];
@@ -1580,6 +1767,7 @@ router.post("/bookings", (req, res) => {
                     text: "No trains added yet",
                     type: "danger",
                 });
+                options.data.messageArray = messageArray;
                 res.render("bookings", options);
             } else {
                 var trainArray = [];
@@ -1613,13 +1801,12 @@ router.post("/bookings", (req, res) => {
                                 Bookings.findAll(query)
                                     .then((data) => {
                                         if (data.length == 0) {
-                                            req.flash(
-                                                "error_msg",
-                                                "No Bookings available"
-                                            );
-                                            res.redirect(
-                                                "/admin/dashboard/bookings"
-                                            );
+                                            messageArray.push({
+                                                text: "No Bookings available",
+                                                type: "danger",
+                                            });
+                                            options.data.messageArray = messageArray;
+                                            res.render("bookings", options);
                                         } else {
                                             var bookingsArray = [];
                                             data.forEach((el, i) => {
@@ -1674,9 +1861,7 @@ router.post("/bookings", (req, res) => {
                                                             );
                                                         })
                                                         .catch((e) => {
-                                                            console.log(
-                                                                e.message
-                                                            );
+                                                            console.log(e);
                                                             options.data.messageArray = messageArray;
                                                             res.render(
                                                                 "bookings",
@@ -1685,7 +1870,7 @@ router.post("/bookings", (req, res) => {
                                                         });
                                                 })
                                                 .catch((e) => {
-                                                    console.log(e.message);
+                                                    console.log(e);
                                                     res.redirect(
                                                         "/admin/dashboard/bookings"
                                                     );
@@ -1693,7 +1878,7 @@ router.post("/bookings", (req, res) => {
                                         }
                                     })
                                     .catch((e) => {
-                                        console.log(e.message);
+                                        console.log(e);
                                         res.redirect(
                                             "/admin/dashboard/bookings"
                                         );
@@ -1705,6 +1890,7 @@ router.post("/bookings", (req, res) => {
                                         text: e.message,
                                         type: "danger",
                                     });
+                                    options.data.messageArray = messageArray;
                                 } else {
                                     console.log(e.message);
                                 }
@@ -1717,15 +1903,16 @@ router.post("/bookings", (req, res) => {
                                 text: e.message,
                                 type: "danger",
                             });
+                            options.data.messageArray = messageArray;
                         } else {
-                            console.log(e.message);
+                            console.log(e);
                         }
                         res.render("bookings", options);
                     });
             }
         })
         .catch((e) => {
-            console.log(e.message);
+            console.log(e);
             res.render("bookings", options);
         });
 });

@@ -24,6 +24,52 @@ const Stations = db.define("Station", {
 
 module.exports = Stations;
 
+module.exports.getStations = (adminId) => {
+    return new Promise((resolve, reject) => {
+        Stations.findAll()
+            .then((data) => {
+                if (data.length == 0) {
+                    return reject({
+                        custom: true,
+                        message: "No Stations available",
+                    });
+                } else {
+                    var station,
+                        stationsArray = [];
+                    data.forEach((el) => {
+                        station = el.dataValues;
+                        if (station.status) {
+                            if (adminId) {
+                                if (station.adminId == adminId) {
+                                    stationsArray.push(station);
+                                }
+                            } else {
+                                stationsArray.push(station);
+                            }
+                        }
+                    });
+                    stationsArray.sort((a, b) => {
+                        var nameA = a.stationName.toUpperCase();
+                        var nameB = b.stationName.toUpperCase();
+
+                        if (nameA < nameB) {
+                            return -1;
+                        } else if (nameA > nameB) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                    return resolve(stationsArray);
+                }
+            })
+            .catch((e) => {
+                e.custom = false;
+                return reject(e);
+            });
+    });
+};
+
 module.exports.getStateStations = (stateId) => {
     return new Promise((resolve, reject) => {
         Stations.findAll({

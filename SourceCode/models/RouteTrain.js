@@ -132,7 +132,7 @@ module.exports.getRoutes = (trainId) => {
                 if (data.length == 0) {
                     return reject({
                         custom: true,
-                        message: "No schedules for the train",
+                        message: "No Routes for the train",
                     });
                 } else {
                     var routeArray = [];
