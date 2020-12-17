@@ -109,7 +109,56 @@ router.get("/", (req, res) => {
 });
 
 router.get("/getChartData", (req, res) => {
-    var data = {};
+    var data = {
+        type: "bar",
+        defaultFontFamily: "Poppins",
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: "Booke AC Seats",
+                    data: [],
+                    borderColor: "rgb(0, 12, 247)",
+                    borderWidth: "0",
+                    backgroundColor: "rgb(50, 55, 199)",
+                    fontFamily: "Poppins",
+                },
+                {
+                    label: "Booked General Seats",
+                    data: [],
+                    borderColor: "rgb(255, 0, 0)",
+                    borderWidth: "0",
+                    backgroundColor: "rgba(196, 57, 57)",
+                    fontFamily: "Poppins",
+                },
+            ],
+        },
+        options: {
+            legend: {
+                position: "top",
+                labels: {
+                    fontFamily: "Poppins",
+                },
+            },
+            scales: {
+                xAxes: [
+                    {
+                        ticks: {
+                            fontFamily: "Poppins",
+                        },
+                    },
+                ],
+                yAxes: [
+                    {
+                        ticks: {
+                            beginAtZero: true,
+                            fontFamily: "Poppins",
+                        },
+                    },
+                ],
+            },
+        },
+    };
     Bookings.getBookingsThisMonth(req.user.id)
         .then((trainBookings) => {
             var acSeats = [],
@@ -121,61 +170,13 @@ router.get("/getChartData", (req, res) => {
                 generalSeats.push(value.bGeneralSeats);
             });
 
-            data = {
-                type: "bar",
-                defaultFontFamily: "Poppins",
-                data: {
-                    labels,
-                    datasets: [
-                        {
-                            label: "Booke AC Seats",
-                            data: acSeats,
-                            borderColor: "rgb(0, 12, 247)",
-                            borderWidth: "0",
-                            backgroundColor: "rgb(50, 55, 199)",
-                            fontFamily: "Poppins",
-                        },
-                        {
-                            label: "Booked General Seats",
-                            data: generalSeats,
-                            borderColor: "rgb(255, 0, 0)",
-                            borderWidth: "0",
-                            backgroundColor: "rgba(196, 57, 57)",
-                            fontFamily: "Poppins",
-                        },
-                    ],
-                },
-                options: {
-                    legend: {
-                        position: "top",
-                        labels: {
-                            fontFamily: "Poppins",
-                        },
-                    },
-                    scales: {
-                        xAxes: [
-                            {
-                                ticks: {
-                                    fontFamily: "Poppins",
-                                },
-                            },
-                        ],
-                        yAxes: [
-                            {
-                                ticks: {
-                                    beginAtZero: true,
-                                    fontFamily: "Poppins",
-                                },
-                            },
-                        ],
-                    },
-                },
-            };
+            data.data.labels = labels;
+            data.data.datasets[0].data = acSeats;
+            data.data.datasets[1].data = generalSeats;
 
-            res.send(data);
+            data = res.send(data);
         })
         .catch((e) => {
-            console.log(e);
             res.send(data);
         });
 });
@@ -204,6 +205,7 @@ router.get("/states", (req, res) => {
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("states", options);
         });
 });
@@ -267,11 +269,13 @@ router.get("/states/update/:id", (req, res) => {
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("states", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("states", options);
         });
 });
@@ -360,16 +364,18 @@ router.get("/stations", (req, res) => {
                 .findAllInArray(Stations, "stationName", extras, req.user.id)
                 .then((stations) => {
                     options.data.stations = stations;
-
+                    options.data.messageArray = messageArray;
                     res.render("stations", options);
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("stations", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("stations", options);
         });
 });
@@ -447,20 +453,24 @@ router.get("/stations/update/:id/:stateName", (req, res) => {
                             options.data.messageArray = messageArray;
 
                             options.data.updateStation = updateData;
+                            options.data.messageArray = messageArray;
                             res.render("stations", options);
                         })
                         .catch((e) => {
                             console.log(e.message);
+                            options.data.messageArray = messageArray;
                             res.render("stations", options);
                         });
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("stations", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("stations", options);
         });
 });
@@ -537,11 +547,11 @@ router.get("/trains", (req, res) => {
 
             options.data.messageArray = messageArray;
             options.data.trains = trains;
-
             res.render("trains", options);
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("trains", options);
         });
 });
@@ -607,17 +617,18 @@ router.get("/trains/update/:id", (req, res) => {
                         text: "Please Update here",
                     });
                     options.data.messageArray = messageArray;
-
                     options.data.updateTrain = updateData;
                     res.render("trains", options);
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("trains", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("trains", options);
         });
 });
@@ -700,6 +711,7 @@ router.get("/schedules", (req, res) => {
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("schedules", options);
         });
 });
@@ -776,17 +788,18 @@ router.get("/schedules/update/:id", (req, res) => {
                         text: "Please Update here",
                     });
                     options.data.messageArray = messageArray;
-
                     options.data.updateSchedule = updateData;
                     res.render("schedules", options);
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("schedules", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("schedules", options);
         });
 });
@@ -925,26 +938,29 @@ router.get("/routes", (req, res) => {
                                     }
                                     options.data.messageArray = messageArray;
                                     options.data.routes = routes;
-
                                     res.render("routes", options);
                                 })
                                 .catch((e) => {
                                     console.log(e.message);
+                                    options.data.messageArray = messageArray;
                                     res.render("routes", options);
                                 });
                         })
                         .catch((e) => {
                             console.log(e.message);
+                            options.data.messageArray = messageArray;
                             res.render("routes", options);
                         });
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("routes", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("routes", options);
         });
 });
@@ -1124,31 +1140,35 @@ router.get("/routes/update/:id/:sStation/:dStation", (req, res) => {
                                             });
                                             options.data.messageArray = messageArray;
                                             options.data.updateRoute = updateData;
-
                                             res.render("routes", options);
                                         })
                                         .catch((e) => {
                                             console.log(e.message);
+                                            options.data.messageArray = messageArray;
                                             res.render("routes", options);
                                         });
                                 })
                                 .catch((e) => {
                                     console.log(e.message);
+                                    options.data.messageArray = messageArray;
                                     res.render("routes", options);
                                 });
                         })
                         .catch((e) => {
                             console.log(e.message);
+                            options.data.messageArray = messageArray;
                             res.render("routes", options);
                         });
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("routes", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("routes", options);
         });
 });
@@ -1293,20 +1313,22 @@ router.get("/users", (req, res) => {
                     text: "No users yet.",
                 });
             }
-            options.data.userData = users;
             options.data.users = users;
             commonFunctions
                 .convertToPdf(userPdfTemplate, users, req.user.id, false)
                 .then((data) => {
+                    options.data.messageArray = messageArray;
                     res.render("users", options);
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("users", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("users", options);
         });
 });
@@ -1318,12 +1340,7 @@ router.post("/users/search", (req, res) => {
         userData: req.user,
         title: "Users",
     };
-    var messageArray = [
-        {
-            text: "No user found",
-            type: "danger",
-        },
-    ];
+    var messageArray = [];
     var users = [];
 
     Users.getAllUsers("user")
@@ -1345,7 +1362,10 @@ router.post("/users/search", (req, res) => {
                 })
                     .then((data) => {
                         if (data == null) {
-                            options.data.messageArray = messageArray;
+                            messageArray.push({
+                                text: "No users Found",
+                                type: "danger",
+                            });
                             options.data.users = [];
                             commonFunctions
                                 .convertToPdf(
@@ -1355,10 +1375,12 @@ router.post("/users/search", (req, res) => {
                                     false
                                 )
                                 .then((data) => {
+                                    options.data.messageArray = messageArray;
                                     res.render("users", options);
                                 })
                                 .catch((e) => {
                                     console.log(e.message);
+                                    options.data.messageArray = messageArray;
                                     res.render("users", options);
                                 });
                         } else {
@@ -1375,20 +1397,22 @@ router.post("/users/search", (req, res) => {
                                     false
                                 )
                                 .then((data) => {
+                                    options.data.messageArray = messageArray;
                                     res.render("users", options);
                                 })
                                 .catch((e) => {
                                     console.log(e.message);
+                                    options.data.messageArray = messageArray;
                                     res.render("users", options);
                                 });
                         }
                     })
                     .catch((e) => {
                         console.log(e);
+                        options.data.messageArray = messageArray;
                         res.render("users", options);
                     });
             } else {
-                messageArray = [];
                 messageArray.push({
                     text: "Please enter Email",
                     type: "danger",
@@ -1399,6 +1423,7 @@ router.post("/users/search", (req, res) => {
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("users", options);
         });
 });
@@ -1410,12 +1435,7 @@ router.post("/users/filter", (req, res) => {
         userData: req.user,
         title: "Users",
     };
-    var messageArray = [
-        {
-            text: "No user found",
-            type: "danger",
-        },
-    ];
+    var messageArray = [];
     Users.getAllUsers("user")
         .then((userDatas) => {
             if (userDatas.length == 0) {
@@ -1463,14 +1483,24 @@ router.post("/users/filter", (req, res) => {
                                 false
                             )
                             .then((data) => {
+                                options.data.messageArray = messageArray;
                                 res.render("users", options);
                             })
                             .catch((e) => {
                                 console.log(e.message);
+                                messageArray.push({
+                                    text: "No user found",
+                                    type: "danger",
+                                });
+                                options.data.messageArray = messageArray;
                                 res.render("users", options);
                             });
                     } else {
                         options.data.users = [];
+                        messageArray.push({
+                            text: "No user found",
+                            type: "danger",
+                        });
                         options.data.messageArray = messageArray;
                         commonFunctions
                             .convertToPdf(
@@ -1492,11 +1522,13 @@ router.post("/users/filter", (req, res) => {
                 })
                 .catch((e) => {
                     console.log(e.message);
+                    options.data.messageArray = messageArray;
                     res.render("users", options);
                 });
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("users", options);
         });
 });
@@ -1523,10 +1555,12 @@ router.get("/admins", (req, res) => {
                 });
             }
             options.data.users = users;
+            options.data.messageArray = messageArray;
             res.render("admins", options);
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("admins", options);
         });
 });
@@ -1690,6 +1724,7 @@ router.get("/bookings", (req, res) => {
                         RouteSchedule.getSchedules(routeArray[0].id, true)
                             .then((scheduleArray) => {
                                 options.data.scheduleArray = scheduleArray;
+                                options.data.messageArray = messageArray;
                                 res.render("bookings", options);
                             })
                             .catch((e) => {
@@ -1698,10 +1733,10 @@ router.get("/bookings", (req, res) => {
                                         text: e.message,
                                         type: "danger",
                                     });
-                                    options.data.messageArray = messageArray;
                                 } else {
                                     console.log(e.message);
                                 }
+                                options.data.messageArray = messageArray;
                                 res.render("bookings", options);
                             });
                     })
@@ -1711,16 +1746,17 @@ router.get("/bookings", (req, res) => {
                                 text: e.message,
                                 type: "danger",
                             });
-                            options.data.messageArray = messageArray;
                         } else {
                             console.log(e.message);
                         }
+                        options.data.messageArray = messageArray;
                         res.render("bookings", options);
                     });
             }
         })
         .catch((e) => {
             console.log(e.message);
+            options.data.messageArray = messageArray;
             res.render("bookings", options);
         });
 });
@@ -1855,6 +1891,7 @@ router.post("/bookings", (req, res) => {
                                                         )
                                                         .then((data) => {
                                                             options.data.showPdf = true;
+                                                            options.data.messageArray = messageArray;
                                                             res.render(
                                                                 "bookings",
                                                                 options
@@ -1890,10 +1927,10 @@ router.post("/bookings", (req, res) => {
                                         text: e.message,
                                         type: "danger",
                                     });
-                                    options.data.messageArray = messageArray;
                                 } else {
                                     console.log(e.message);
                                 }
+                                options.data.messageArray = messageArray;
                                 res.render("bookings", options);
                             });
                     })
@@ -1903,16 +1940,17 @@ router.post("/bookings", (req, res) => {
                                 text: e.message,
                                 type: "danger",
                             });
-                            options.data.messageArray = messageArray;
                         } else {
                             console.log(e);
                         }
+                        options.data.messageArray = messageArray;
                         res.render("bookings", options);
                     });
             }
         })
         .catch((e) => {
             console.log(e);
+            options.data.messageArray = messageArray;
             res.render("bookings", options);
         });
 });

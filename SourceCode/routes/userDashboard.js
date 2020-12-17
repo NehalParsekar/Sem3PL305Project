@@ -36,6 +36,11 @@ router.get("/", (req, res) => {
         year: false,
     };
 
+    var tActive = 0;
+    var tCancelled = 0;
+    var tCost = 0;
+    var tMembersCount = 0;
+
     Tickets.getTickets(req.user.id, true, false, monthData)
         .then((data) => {
             options.data.monthTransactions = data.monthTransactions;
@@ -45,9 +50,6 @@ router.get("/", (req, res) => {
                     type: "danger",
                 });
             }
-            var tActive = 0;
-            var tCancelled = 0;
-            var tCost = 0;
             data.ticketsArray.forEach((el) => {
                 if (el.status) {
                     tActive++;
@@ -61,27 +63,23 @@ router.get("/", (req, res) => {
             options.data.tCost = tCost;
             Members.getMembers(req.user.id)
                 .then((memberArray) => {
-                    options.data.memberCount = memberArray.length;
+                    tMembersCount = memberArray.length;
+                    options.data.memberCount = tMembersCount;
                     res.render("userDashboard", options);
                 })
                 .catch((e) => {
-                    if (e.custom) {
-                        messageArray.push({
-                            text: e.message,
-                            type: "danger",
-                        });
-                    }
-                    options.data.messageArray = messageArray;
+                    options.data.tActive = tActive;
+                    options.data.tCancelled = tCancelled;
+                    options.data.tCost = tCost;
+                    options.data.memberCount = tMembersCount;
                     res.render("userDashboard", options);
                 });
         })
         .catch((e) => {
-            if (e.custom) {
-                messageArray.push({
-                    text: e.message,
-                    type: "danger",
-                });
-            }
+            options.data.tActive = tActive;
+            options.data.tCancelled = tCancelled;
+            options.data.tCost = tCost;
+            options.data.memberCount = tMembersCount;
             res.render("userDashboard", options);
         });
 });
@@ -112,6 +110,7 @@ router.get("/tickets", (req, res) => {
                     Tickets.getTickets(req.user.id, false, false, false)
                         .then((data) => {
                             options.data.tickets = data.ticketsArray;
+                            options.data.messageArray = messageArray;
                             res.render("tickets", options);
                         })
                         .catch((e) => {
@@ -120,10 +119,10 @@ router.get("/tickets", (req, res) => {
                                     type: "danger",
                                     text: e.message,
                                 });
-                                options.data.messageArray = messageArray;
                             } else {
                                 console.log(e.message);
                             }
+                            options.data.messageArray = messageArray;
                             res.render("tickets", options);
                         });
                 })
@@ -357,6 +356,7 @@ router.get("/transactions", (req, res) => {
                     true
                 )
                 .then((data) => {
+                    options.data.messageArray = messageArray;
                     res.render("transactions", options);
                 })
                 .catch((e) => {
@@ -500,6 +500,7 @@ router.get("/members", (req, res) => {
     Members.getMembers(req.user.id)
         .then((userArray) => {
             options.data.users = userArray;
+            options.data.messageArray = messageArray;
             res.render("members", options);
         })
         .catch((e) => {

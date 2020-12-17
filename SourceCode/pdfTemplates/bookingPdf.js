@@ -129,7 +129,7 @@ module.exports = (data) => {
                         <img
                             src="http://localhost:3000/images/icon/logo.png"
                             alt="John Doe"
-                            height="200"
+                            height="150"
                             width="500"
                         />
                         <h1>Booking Detail</h1>

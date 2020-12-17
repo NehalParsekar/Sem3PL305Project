@@ -63,7 +63,7 @@ module.exports = (ticket) => {
                     <div class="card">
                         <img src="http://localhost:3000/images/icon/logo.png"
                             alt="John Doe"
-                            height="200"
+                            height="150"
                             width="500"
                         />
                         <h1>Ticket</h1>

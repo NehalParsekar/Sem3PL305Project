@@ -270,3 +270,9 @@ if ($("#dashMain").length) {
         new Chart(chartElement, data);
     });
 }
+
+if ($(".alert").length) {
+    setTimeout(() => {
+        $("#mDiv").empty();
+    }, 5000);
+}

@@ -88,9 +88,10 @@ module.exports = (array) => {
                     <div class="row">
                         <div class="col iconCol">
                             <div class="card">
+                                <br/>
                                 <img src="http://localhost:3000/images/icon/logo.png"
                                     alt="John Doe"
-                                    height="200"
+                                    height="150"
                                     width="500"
                                 />
                                 <h1>Users Data</h1>
